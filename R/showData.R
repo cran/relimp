@@ -40,7 +40,7 @@ function (tcl.list)
     if (is.numeric(rownumbers) &&
         length(rownumbers) != nrow(dataframe)) 
         stop("rownumbers argument must be TRUE, FALSE or have length nrow(dataframe)")
-#    require(tcltk) || stop("Tcl/Tk support is absent")
+    require(tcltk) || stop("Tcl/Tk support is absent")
     oldwidth <- options()$width
     options(width = 10000)
     conn <- file()

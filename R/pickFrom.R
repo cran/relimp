@@ -6,7 +6,7 @@
     if (!is.vector(vec)) 
         stop("argument `vec' muct be a vector")
     else vec <- as.character(vec)
-
+    require(tcltk) || stop("tcltk support is absent")
     base <- tktoplevel(takefocus = 1)
     tkwm.title(base, title)
     tkwm.geometry(base, "+150+30")
