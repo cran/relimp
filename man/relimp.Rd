@@ -17,10 +17,10 @@ print.relimp(x, digits=3, ...)
 
 \arguments{
   \item{object}{A model object of class
-    \code{\link{lm}}, \code{\link{glm}}, \code{\link{coxph}},
-    \code{\link{survreg}}, 
-    \code{\link{multinom}}, 
-    \code{\link{polr}}, \code{\link{gls}} or \code{\link{lme}}}
+    \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}},
+    \code{\link[survival]{survreg}}, 
+    \code{\link[nnet]{multinom}}, 
+    \code{\link[MASS]{polr}}, \code{\link[nlme]{gls}} or \code{\link[nlme]{lme}}}
   \item{set1}{An index or vector of indices for the effects to be
     included in the numerator of the comparison}
   \item{set2}{An index or vector of indices for the effects to be
@@ -49,7 +49,6 @@ print.relimp(x, digits=3, ...)
     \code{dispersion=1.69}). By default
     it is obtained from \code{object}.  Supplying it here
     permits explicit allowance for over-dispersion, for example.}
-  \item{relimp.object}{An object of class \code{relimp}}
   \item{x}{an object of class \code{relimp}}
   \item{digits}{The number of decimal places to be used in the printed 
     summary.  Default is 3.}
@@ -88,8 +87,6 @@ print.relimp(x, digits=3, ...)
   7--18.
   }
 \author{David Firth \email{d.firth@warwick.ac.uk} }
-\note{Makes use of the generic accessor function \code{\link{vcov}} from
-the \code{link{MASS}} package (in R 1.5.1 or earlier).}
 
 \seealso{\code{\link{relrelimp}}}
 
