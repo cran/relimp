@@ -6,4 +6,3 @@ relimp                  Relative Importance of Predictors in a
 relrelimp               Comparison of Relative Importances in a
                         Multinomial Logit Model
 showData                Display a Data Frame in a Tk Text Widget
-vcov                    Covariance Matrix of Model Estimates

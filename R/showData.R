@@ -56,6 +56,13 @@ function (dataframe, colname.bgcolor = "royalblue",
             tkxview(hdr, ...)
             tkxview(ftr, ...)
         })
+    string.to.vector <-
+       function (string.of.indices) 
+       ##  converts a string of indices, as returned by tkcurselection(widget),
+       ##  into an index vector for use by R
+       {
+           as.numeric(strsplit(string.of.indices, split = " ")[[1]])
+       }
     tkconfigure(txt, xscrollcommand = function(...) {
         tkset(xscroll, ...)
         xy <- string.to.vector(tkget(xscroll))

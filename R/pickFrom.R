@@ -18,7 +18,8 @@ function (tcl.list)
 }
 
 pickFrom <-
-function (vec, nsets = 1, setlabels = NULL, title = "Subset picker", 
+function (vec, nsets = 1, return.indices = FALSE,
+          setlabels = NULL, title = "Subset picker", 
     items.label = "Pick from:") 
 {
     if (!is.vector(vec)) 
@@ -182,7 +183,8 @@ function (vec, nsets = 1, setlabels = NULL, title = "Subset picker",
         result <- sets
     }
     else result <- NULL
-    return(result)
+    if (return.indices) return(result)
+    else return(lapply(result, function(set){vec[set]}))
 }
 
 

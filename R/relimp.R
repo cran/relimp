@@ -47,7 +47,10 @@ function (x, digits = 3, ...)
 function (object, set1 = NULL, set2 = NULL, label1 = "set1", 
     label2 = "set2", subset = TRUE, response.cat = NULL, ...) 
 {
-    require(MASS)
+    if (version$major == 1 && version$minor < 6.0) {
+        require(MASS, quietly = TRUE)  
+        ## for generic function vcov() and related methods
+    }
     if (class(object) == "multinom") {
         require(nnet)
     }
@@ -58,15 +61,16 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     if (class(object)[1] == "multinom" && !(response.cat %in% 
         rownames(coef(object)))) 
         stop("argument `response.cat' not valid for this model")
+    covmat <- vcov(object, ...)
     if (is.null(set1) || is.null(set2)) {
         coefnames <- {
             if (class(object)[1] != "multinom") 
-              names(coef(object))
+              colnames(covmat)
             else colnames(coef(object))
         }
-        sets <- pickFrom(coefnames, nsets = 2, setlabels = c(label1, 
-          label2),
-          title = "Specify a relative importance (\"relimp\") comparison", 
+        sets <- pickFrom(coefnames, nsets = 2, return.indices = FALSE,
+                         setlabels = c(label1, label2),
+            title = "Specify a relative importance (\"relimp\") comparison", 
             items.label = "Model coefficients")
         if (!is.null(sets)) {
             set1 <- sets[[1]]
@@ -76,16 +80,24 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
         }
         else stop("\neffects for comparison (set1,set2) not specified")
     }
-    if (max(union(set1, set2)) > length(coef(object))) {
-        stop("Index out of bounds")
-    }
+    else {
+        if (max(union(set1, set2)) > length(coef(object))) {
+            stop("Index out of bounds")
+        }
+        if (any(is.na(coef(object)[set1]))){
+            stop("set1 contains NAs")}
+        if (any(is.na(coef(object)[set2]))){
+            stop("set2 contains NAs")}
+        coefnames <- if (class(object)[1] != "multinom") names(coef(object))
+                     else colnames(coef(object))
+        set1 <- coefnames[set1]
+        set2 <- coefnames[set2]}
     ## notation below follows Silber, Rosenbaum and Ross (1995, JASA)
     coefs <- {
         if (class(object)[1] != "multinom") 
             coef(object)
         else coef(object)[response.cat, ]
     }
-    covmat <- vcov(object, ...)
     if (class(object)[1] == "multinom") {
         indices <- t(matrix(1:prod(dim(coef(object))),
                             nrow = ncol(coef(object)), 
@@ -96,9 +108,6 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     }
     beta <- coefs[set1, drop = FALSE]
     gamma <- coefs[set2, drop = FALSE]
-    names <- names(coefs)
-    names1 <- names[set1]
-    names2 <- names[set2]
     if (!is.matrix(object$x)) 
         modelmatrix <- model.matrix(object)
     else modelmatrix <- object$x
@@ -115,7 +124,11 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
             "\"", sep = "")))
     X <- sweep(X, 2, apply(X, 2, mean))
     H <- sweep(H, 2, apply(H, 2, mean))
-    Sigma <- covmat[c(set1, set2), c(set1, set2)]
+    indices <- if (class(object)[1] == "multinom"){
+                    c(paste(response.cat, set1, sep=":"),
+                      paste(response.cat, set2, sep=":"))}
+               else c(set1, set2)
+    Sigma <- covmat[indices, indices]
     pi <- X %*% beta
     phi <- H %*% gamma
     sd.ratio <- sd(pi)/sd(phi)
@@ -131,7 +144,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
         else NULL
     }
     ans <- list(model = object$call, response.category = response.cat, 
-        dispersion = dispersion, sets = list(names1, names2), 
+        dispersion = dispersion, sets = list(set1, set2), 
         log.ratio = log.ratio, se.log.ratio = se.log.ratio)
     names(ans$sets) <- c(label1, label2)
     class(ans) <- "relimp"
@@ -144,7 +157,10 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
 {
     if (class(object)[1] != "multinom") 
         stop("Object is not of class \"multinom\"")
-    require(MASS)
+    if (version$major == 1 && version$minor < 6.0) {
+        require(MASS, quietly = TRUE)  
+        ## for generic function vcov() and related methods
+    }
     require(nnet)
     if (is.null(response.cat1) || is.null(response.cat2)) 
         stop("arguments `response.cat1' and `response.cat2' must be specified")
@@ -159,8 +175,8 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
               names(coef(object))
             else colnames(coef(object))
         }
-        sets <- pickFrom(coefnames, nsets = 2, setlabels = c(label1, 
-          label2),
+        sets <- pickFrom(coefnames, nsets = 2, return.indices = TRUE,
+                         setlabels = c(label1, label2),
           title = "Specify a relative importance (\"relimp\") comparison", 
             items.label = "Model coefficients")
         if (!is.null(sets)) {
@@ -251,24 +267,4 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     names(ans$sets) <- c(label1, label2)
     class(ans) <- "relrelimp"
     return(ans)
-}
-"vcov.coxph" <-
-function (object, ...) 
-{
-    as.matrix(object$var)
-}
-"vcov.gls" <-
-function (object, ...) 
-{
-    as.matrix(object$varBeta)
-}
-"vcov.lme" <-
-function (object, ...) 
-{
-    as.matrix(object$varFix)
-}
-"vcov.survreg" <-
-function (object, ...) 
-{
-    as.matrix(object$var)
 }

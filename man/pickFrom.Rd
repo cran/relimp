@@ -6,20 +6,24 @@
   from a vector.  Requires the \code{tcltk} package.
 }
 \usage{
-pickFrom(vec, nsets = 1, setlabels = NULL, title = "Subset picker",
+pickFrom(vec, nsets = 1, return.indices = FALSE, setlabels = NULL,
+  title = "Subset picker",
   items.label = "Pick from:")
 }
 \arguments{
   \item{vec}{a vector}
   \item{nsets}{an integer, the number of subsets to be selected}
+  \item{return.indices}{logical, whether indices (\code{TRUE}) or vector
+    contents (\code{FALSE}) are to be returned}
   \item{setlabels}{a character vector of labels for the subsets}
   \item{title}{title of the Tk dialog window}
   \item{items.label}{a label for the set of items to be selected from}
 }
 \value{
   A list, with \code{nsets} components.  Each component is a
-  numeric vector of indices for a selected subset; the component
-  names are as specified in \code{setlabels}, or interactively.
+  selected sub-vector, or a numeric vector of indices for a
+  selected sub-vector (if \code{return.indices} is \code{TRUE});
+  the component names are as specified in \code{setlabels}, or interactively.
 }
 \author{David Firth, \email{david.firth@nuffield.ox.ac.uk}}
 
