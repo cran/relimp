@@ -1,26 +1,6 @@
-R.to.Tcl <-
-function (character.vector) 
-##  converts a character vector into a brace-delimited Tcl list
-{
-    if (length(character.vector) == 0) list()
-    else paste("{", paste(character.vector, collapse = "} {"),
-               "}", 
-               sep = "")
-}
-
-Tcl.to.R <-
-function (tcl.list) 
-##  converts a fully brace-delimited Tcl list into a character 
-##  vector in R
-{
-    tcl.list <- substring(tcl.list, 2, nchar(tcl.list) - 1)
-    strsplit(tcl.list, split = "} {")[[1]]
-}
-
-pickFrom <-
-function (vec, nsets = 1, return.indices = FALSE,
-          setlabels = NULL, title = "Subset picker", 
-    items.label = "Pick from:") 
+"pickFrom" <-
+    function (vec, nsets = 1, return.indices = FALSE, setlabels = NULL, 
+              title = "Subset picker", items.label = "Pick from:") 
 {
     if (!is.vector(vec)) 
         stop("argument `vec' muct be a vector")
@@ -34,11 +14,12 @@ function (vec, nsets = 1, return.indices = FALSE,
     left.frm <- tkframe(base)
     items.label <- tklabel(left.frm, text = items.label)
     items <- tklistbox(left.frm, listvar = as.character(tclVar(paste("{", 
-        paste(vec, collapse = "} {"), "}", sep = ""))), bg = "darkviolet", 
-        selectmode = "extended", fg = "white", height = min(15, 
-            length(vec)))
+                                 paste(vec, collapse = "} {"), "}",
+                                 sep = ""))), bg = "darkviolet", 
+                                 selectmode = "extended", fg = "white",
+                                 height = min(15, length(vec)))
     tkpack(items.label, items, pady = 10, padx = 5, side = "top", 
-        expand = "true", anchor = "n")
+           expand = "true", anchor = "n")
     tkpack(left.frm, side = "top", expand = "true", anchor = "n")
     sets.frm <- tkframe(right.frm)
     setframe <- list()
@@ -61,18 +42,19 @@ function (vec, nsets = 1, return.indices = FALSE,
         tkset[[i]] <- tclVar("")
         TCLlabel[[i]] <- tclVar(setlabels[[i]])
         setframe[[i]] <- tkframe(sets.frm, width = 250, relief = "groove", 
-            borderwidth = 2, bg = "lightgrey")
-        label[[i]] <- tklabel(setframe[[i]], text = setlabels[i], 
-            bg = "lightgrey")
+                                 borderwidth = 2, bg = "lightgrey")
+        label[[i]] <- tklabel(setframe[[i]], text = setlabels[[i]], 
+                              bg = "lightgrey")
         listvarname[[i]] <- as.character(tkset[[i]])
-        listbox[[i]] <- tklistbox(setframe[[i]], listvar = listvarname[[i]], 
-            bg = "white", height = min(15, length(vec)),
+        listbox[[i]] <- tklistbox(setframe[[i]],
+                                  listvar = listvarname[[i]], 
+                                  bg = "white", height = min(15, length(vec)),
                                   selectmode = "extended")
         labelbox[[i]] <- tkframe(setframe[[i]], width = 250, 
-            bg = "lightgrey")
+                                 bg = "lightgrey")
         setlabeltext[[i]] <- tklabel(labelbox[[i]],
                                      text = "Label for this set:", 
-            bg = "lightgrey")
+                                     bg = "lightgrey")
     }
     reset.okbutton <- function(tkset) {
         contentLength <- function(set) {
@@ -84,26 +66,22 @@ function (vec, nsets = 1, return.indices = FALSE,
         }
         else tkconfigure(ok.but, state = "normal")
     }
-    string.to.vector <-
-       function (string.of.indices) 
-       ##  converts a string of indices, as returned by tkcurselection(widget),
-       ##  into an index vector for use by R
-       {
-           as.numeric(strsplit(string.of.indices, split = " ")[[1]])
-       }
+    string.to.vector <- function(string.of.indices) {
+        as.numeric(strsplit(string.of.indices, split = " ")[[1]])
+    }
     add.cmd <- deparse(function() {
         set[[ppp]] <- match(Tcl.to.R(tclvalue(tkset[[ppp]])), 
-            vec)
+                            vec)
         set[[ppp]] <- sort(union(set[[ppp]],
-                       1 + string.to.vector(tclvalue(tkcurselection(items)))))
+                           1 + string.to.vector(tclvalue(
+                                                  tkcurselection(items)))))
         tclvalue(tkset[[ppp]]) <- R.to.Tcl(vec[set[[ppp]]])
         tkconfigure(add.but[[ppp]], state = "disabled")
         reset.okbutton(tkset)
     })
     remove.cmd <- deparse(function() {
         Rtkset[[ppp]] <- Tcl.to.R(tclvalue(tkset[[ppp]]))
-        out <- 1 +
-            string.to.vector(tclvalue(tkcurselection(listbox[[ppp]])))
+        out <- 1 + string.to.vector(tclvalue(tkcurselection(listbox[[ppp]])))
         tclvalue(tkset[[ppp]]) <- R.to.Tcl(Rtkset[[ppp]][-out])
         tkconfigure(remove.but[[ppp]], state = "disabled")
         tkselection.clear(listbox[[ppp]], "0", "end")
@@ -111,15 +89,17 @@ function (vec, nsets = 1, return.indices = FALSE,
     })
     for (i in 1:nsets) {
         add.but[[i]] <- tkbutton(setframe[[i]], text = "Add", 
-            fg = "darkgreen", disabledforeground = "darkgrey", 
-            width = 10, state = "disabled",
-                        command = eval(parse(text = gsub("ppp", 
-                                             as.character(i), add.cmd))))
+                                 fg = "darkgreen",
+                                 disabledforeground = "darkgrey", 
+                                 width = 10, state = "disabled",
+                                 command = eval(parse(text = gsub("ppp", 
+                                                   as.character(i), add.cmd))))
         remove.but[[i]] <- tkbutton(setframe[[i]], text = "Remove", 
-            fg = "darkred", disabledforeground = "darkgrey", 
-            width = 10, state = "disabled",
-                        command = eval(parse(text = gsub("ppp", 
-                                             as.character(i), remove.cmd))))
+                                    fg = "darkred",
+                                    disabledforeground = "darkgrey", 
+                                    width = 10, state = "disabled",
+                                    command = eval(parse(text = gsub("ppp", 
+                                                as.character(i), remove.cmd))))
         labelentry[[i]] <- tkentry(labelbox[[i]],
                                    textvariable = as.character(TCLlabel[[i]]), 
                                    bg = "darkorange", fg = "white")
@@ -130,27 +110,27 @@ function (vec, nsets = 1, return.indices = FALSE,
         tkpack(setframe[[i]], side = "left", padx = 3, pady = 10)
     }
     fun <- deparse(function() {
-        if (tclvalue(tkcurselection(listbox[[ppp]])) != ""){
+        if (tclvalue(tkcurselection(listbox[[ppp]])) != "") {
             for (j in 1:nsets) {
                 tkconfigure(add.but[[j]], state = "disabled")
             }
-            tkconfigure(remove.but[[ppp]], state = "normal")}
+            tkconfigure(remove.but[[ppp]], state = "normal")
+        }
         for (j in (1:nsets)[-ppp]) {
             tkconfigure(remove.but[[j]], state = "disabled")
         }
     })
     for (i in 1:nsets) {
         tkbind(listbox[[i]], "<<ListboxSelect>>",
-               eval(parse(text = gsub("ppp", 
-                          as.character(i), fun))))
+               eval(parse(text = gsub("ppp", as.character(i), fun))))
     }
     tkbind(items, "<<ListboxSelect>>", function() {
-        items.selected <- vec[1 +
-                            string.to.vector(tclvalue(tkcurselection(items)))]
+        items.selected <- vec[1 + string.to.vector(tclvalue(
+                                                 tkcurselection(items)))]
         for (i in 1:nsets) {
             set[[i]] <- Tcl.to.R(tclvalue(tkset[[i]]))
             if (setequal(items.selected, intersect(items.selected, 
-                set[[i]]))) {
+                                                   set[[i]]))) {
                 tkconfigure(add.but[[i]], state = "disabled")
             }
             else tkconfigure(add.but[[i]], state = "normal")
@@ -159,15 +139,15 @@ function (vec, nsets = 1, return.indices = FALSE,
     buttons.frame <- tkframe(right.frm)
     OK <- tclVar(0)
     ok.but <- tkbutton(buttons.frame, text = "OK", width = 10, 
-        command = function() {
-            tkdestroy(base)
-            tclvalue(OK) <- 1
-        })
+                       command = function() {
+                           tkdestroy(base)
+                           tclvalue(OK) <- 1
+                       })
     tkconfigure(ok.but, state = "disabled")
     cancel.but <- tkbutton(buttons.frame, text = "Cancel", width = 10, 
-        command = function() {
-            tkdestroy(base)
-        })
+                           command = function() {
+                               tkdestroy(base)
+                           })
     tkpack(ok.but, cancel.but, side = "left", padx = 20, pady = 20)
     tkpack(sets.frm, buttons.frame, side = "top")
     tkpack(left.frm, side = "left", anchor = "nw", padx = 1)
@@ -183,11 +163,9 @@ function (vec, nsets = 1, return.indices = FALSE,
         result <- sets
     }
     else result <- NULL
-    if (return.indices) return(result)
-    else return(lapply(result, function(set){vec[set]}))
+    if (return.indices) 
+        return(result)
+    else return(lapply(result, function(set) {
+        vec[set]
+    }))
 }
-
-
-
-
-

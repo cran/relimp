@@ -1,21 +1,37 @@
-showData <-
-function (dataframe, colname.bgcolor = "royalblue",
-          rowname.bgcolor = "grey90", 
-    body.bgcolor = "white", colname.textcolor = "white",
-          rowname.textcolor = "darkred", 
-    body.textcolor = "black", font = "Courier 12", maxheight = 30, 
-    maxwidth = 80, title = NULL, rowname.bar = "left", colname.bar = "top", 
-    rownumbers = FALSE, placement = "-20-40") 
+R.to.Tcl <-
+function (character.vector) 
+##  converts a character vector into a brace-delimited Tcl list
+{
+    if (length(character.vector) == 0) list()
+    else paste("{", paste(character.vector, collapse = "} {"),
+               "}", 
+               sep = "")
+}
+
+Tcl.to.R <-
+function (tcl.list) 
+##  converts a fully brace-delimited Tcl list into a character 
+##  vector in R
+{
+    tcl.list <- substring(tcl.list, 2, nchar(tcl.list) - 1)
+    strsplit(tcl.list, split = "} {")[[1]]
+}
+
+"showData" <-
+    function (dataframe, colname.bgcolor = "royalblue", rowname.bgcolor = "grey90", 
+              body.bgcolor = "white", colname.textcolor = "white", rowname.textcolor = "darkred", 
+              body.textcolor = "black", font = "Courier 12", maxheight = 30, 
+              maxwidth = 80, title = NULL, rowname.bar = "left", colname.bar = "top", 
+              rownumbers = FALSE, placement = "-20-40") 
 {
     object.name <- deparse(substitute(dataframe))
     if (!is.data.frame(dataframe)) 
         stop(paste(object.name, "is not a data frame"))
     if (is.numeric(rownumbers) && length(rownumbers) != nrow(dataframe)) 
-        stop(
-      "rownumbers argument must be TRUE, FALSE or have length nrow(dataframe)")
+        stop("rownumbers argument must be TRUE, FALSE or have length nrow(dataframe)")
     require(tcltk) || stop("Tcl/Tk support is absent")
     oldwidth <- options()$width
-    options(width = 10000)  ## to ensure no wrapping
+    options(width = 10000)
     conn <- textConnection("zz", "w")
     sink(conn)
     print(dataframe)
@@ -41,28 +57,25 @@ function (dataframe, colname.bgcolor = "royalblue",
     datawidth <- max(nchar(yy))
     winwidth <- min(1 + datawidth, maxwidth)
     hdr <- tktext(base, bg = colname.bgcolor, fg = colname.textcolor, 
-        font = font, height = 1, width = winwidth)
+                  font = font, height = 1, width = winwidth)
     ftr <- tktext(base, bg = colname.bgcolor, fg = colname.textcolor, 
-        font = font, height = 1, width = winwidth)
+                  font = font, height = 1, width = winwidth)
     txt <- tktext(base, bg = body.bgcolor, fg = body.textcolor, 
-        font = font, height = min(maxheight, nrows), width = winwidth)
+                  font = font, height = min(maxheight, nrows), width = winwidth)
     lnames <- tktext(base, bg = rowname.bgcolor, fg = rowname.textcolor, 
-        font = font, height = min(maxheight, nrows), width = namewidth)
+                     font = font, height = min(maxheight, nrows), width = namewidth)
     rnames <- tktext(base, bg = rowname.bgcolor, fg = rowname.textcolor, 
-        font = font, height = min(maxheight, nrows), width = namewidth)
+                     font = font, height = min(maxheight, nrows), width = namewidth)
     xscroll <- tkscrollbar(base, orient = "horizontal", repeatinterval = 1, 
-        command = function(...) {
-            tkxview(txt, ...)
-            tkxview(hdr, ...)
-            tkxview(ftr, ...)
-        })
-    string.to.vector <-
-       function (string.of.indices) 
-       ##  converts a string of indices, as returned by tkcurselection(widget),
-       ##  into an index vector for use by R
-       {
-           as.numeric(strsplit(string.of.indices, split = " ")[[1]])
-       }
+                           command = function(...) {
+                               tkxview(txt, ...)
+                               tkxview(hdr, ...)
+                               tkxview(ftr, ...)
+                           })
+    string.to.vector <- function(string.of.indices) {
+        string.of.indices <- tclvalue(string.of.indices)
+        as.numeric(strsplit(string.of.indices, split = " ")[[1]])
+    }
     tkconfigure(txt, xscrollcommand = function(...) {
         tkset(xscroll, ...)
         xy <- string.to.vector(tkget(xscroll))
@@ -82,11 +95,11 @@ function (dataframe, colname.bgcolor = "royalblue",
         tkxview.moveto(txt, xy[1])
     })
     yscroll <- tkscrollbar(base, orient = "vertical", repeatinterval = 1, 
-        command = function(...) {
-            tkyview(txt, ...)
-            tkyview(lnames, ...)
-            tkyview(rnames, ...)
-        })
+                           command = function(...) {
+                               tkyview(txt, ...)
+                               tkyview(lnames, ...)
+                               tkyview(rnames, ...)
+                           })
     tkconfigure(txt, yscrollcommand = function(...) {
         tkset(yscroll, ...)
         xy <- string.to.vector(tkget(yscroll))
@@ -114,7 +127,7 @@ function (dataframe, colname.bgcolor = "royalblue",
     tktag.configure(lnames, "notwrapped", wrap = "none")
     tktag.configure(rnames, "notwrapped", wrap = "none")
     tkinsert(txt, "end", paste(paste(yy[-1], collapse = "\n"), 
-        sep = ""), "notwrapped")
+                               sep = ""), "notwrapped")
     tkgrid(txt, row = 1, column = 1)
     if ("top" %in% colname.bar) {
         tkinsert(hdr, "end", paste(yy[1], sep = ""), "notwrapped")
@@ -126,18 +139,18 @@ function (dataframe, colname.bgcolor = "royalblue",
     }
     if ("left" %in% rowname.bar) {
         tkinsert(lnames, "end", paste(rowname.text, collapse = "\n"), 
-            "notwrapped")
+                 "notwrapped")
         tkgrid(lnames, row = 1, column = 0)
     }
     if ("right" %in% rowname.bar) {
         tkinsert(rnames, "end", paste(rowname.text, collapse = "\n"), 
-            "notwrapped")
+                 "notwrapped")
         tkgrid(rnames, row = 1, column = 2)
     }
-    if (maxheight < nrows) { ## if a vertical scrollbar is needed
+    if (maxheight < nrows) {
         tkgrid(yscroll, row = 1, column = 3, sticky = "ns")
     }
-    if (maxwidth < datawidth) { ## if a horizontal scrollbar is needed
+    if (maxwidth < datawidth) {
         tkgrid(xscroll, row = 3, column = 1, sticky = "ew")
     }
     invisible(NULL)
