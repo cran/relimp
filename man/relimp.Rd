@@ -87,7 +87,7 @@ print.relimp(x, digits=3, ...)
   Vary with Hospital Rather than Patient Characteristics?  \emph{JASA} \bold{90},
   7--18.
   }
-\author{David Firth \email{david.firth@nuffield.ox.ac.uk} }
+\author{David Firth \email{d.firth@warwick.ac.uk} }
 \note{Makes use of the generic accessor function \code{\link{vcov}} from
 the \code{link{MASS}} package (in R 1.5.1 or earlier).}
 

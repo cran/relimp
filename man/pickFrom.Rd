@@ -25,7 +25,7 @@ pickFrom(vec, nsets = 1, return.indices = FALSE, setlabels = NULL,
   selected sub-vector (if \code{return.indices} is \code{TRUE});
   the component names are as specified in \code{setlabels}, or interactively.
 }
-\author{David Firth, \email{david.firth@nuffield.ox.ac.uk}}
+\author{David Firth, \email{d.firth@warwick.ac.uk}}
 
 \examples{
 ## This cannot be run by example() but should be OK when pasted

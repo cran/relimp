@@ -75,7 +75,7 @@ relrelimp(object, set1=NULL, set2=NULL, label1="set1", label2="set2",
     \code{log.ratio}}
 }
 
-\author{David Firth, \email{david.firth@nuffield.ox.ac.uk} }
+\author{David Firth, \email{d.firth@warwick.ac.uk} }
 \note{Makes use of the generic accessor function \code{\link{vcov}} from
 the \code{MASS} package (in R 1.5.1 and earlier).}
 

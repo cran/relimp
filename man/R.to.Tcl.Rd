@@ -13,7 +13,7 @@ R.to.Tcl(character.vector)
 \value{
 A character vector of length 1
 }
-\author{David Firth, \email{david.firth@nuffield.ox.ac.uk}}
+\author{David Firth, \email{d.firth@warwick.ac.uk}}
 \seealso{\code{\link{Tcl.to.R}}}
 
 \examples{

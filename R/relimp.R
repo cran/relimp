@@ -51,20 +51,20 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
         require(MASS, quietly = TRUE)  
         ## for generic function vcov() and related methods
     }
-    if (class(object) == "multinom") {
+    if (inherits(object, "multinom")) {
         require(nnet)
     }
-    if (class(object)[1] == "multinom" && is.null(response.cat)) 
+    if (inherits(object, "multinom") && is.null(response.cat)) 
         stop("argument `response.cat' must be specified")
     if (!is.null(response.cat))
         response.cat <- as.character(response.cat) ## numbers get coerced
-    if (class(object)[1] == "multinom" && !(response.cat %in% 
+    if (inherits(object, "multinom") && !(response.cat %in% 
         rownames(coef(object)))) 
         stop("argument `response.cat' not valid for this model")
     covmat <- vcov(object, ...)
     if (is.null(set1) || is.null(set2)) {
         coefnames <- {
-            if (class(object)[1] != "multinom") 
+            if (!inherits(object, "multinom")) 
               colnames(covmat)
             else colnames(coef(object))
         }
@@ -88,17 +88,17 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
             stop("set1 contains NAs")}
         if (any(is.na(coef(object)[set2]))){
             stop("set2 contains NAs")}
-        coefnames <- if (class(object)[1] != "multinom") names(coef(object))
+        coefnames <- if (!inherits(object, "multinom")) names(coef(object))
                      else colnames(coef(object))
         set1 <- coefnames[set1]
         set2 <- coefnames[set2]}
     ## notation below follows Silber, Rosenbaum and Ross (1995, JASA)
     coefs <- {
-        if (class(object)[1] != "multinom") 
+        if (!inherits(object, "multinom")) 
             coef(object)
         else coef(object)[response.cat, ]
     }
-    if (class(object)[1] == "multinom") {
+    if (inherits(object, "multinom")) {
         indices <- t(matrix(1:prod(dim(coef(object))),
                             nrow = ncol(coef(object)), 
                             ncol = nrow(coef(object)),
@@ -124,7 +124,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
             "\"", sep = "")))
     X <- sweep(X, 2, apply(X, 2, mean))
     H <- sweep(H, 2, apply(H, 2, mean))
-    indices <- if (class(object)[1] == "multinom"){
+    indices <- if (inherits(object, "multinom")){
                     c(paste(response.cat, set1, sep=":"),
                       paste(response.cat, set2, sep=":"))}
                else c(set1, set2)
@@ -155,7 +155,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
           label2 = "set2", subset = TRUE,
           response.cat1 = NULL, response.cat2 = NULL) 
 {
-    if (class(object)[1] != "multinom") 
+    if (!inherits(object, "multinom")) 
         stop("Object is not of class \"multinom\"")
     if (version$major == 1 && version$minor < 6.0) {
         require(MASS, quietly = TRUE)  
@@ -171,7 +171,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
         stop("`response.cat' argument(s) not valid for this model")
     if (is.null(set1) || is.null(set2)) {
         coefnames <- {
-            if (class(object)[1] != "multinom") 
+            if (!inherits(object, "multinom")) 
               names(coef(object))
             else colnames(coef(object))
         }

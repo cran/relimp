@@ -46,7 +46,7 @@ showData(dataframe,
 \value{
   \code{invisible(NULL)}
 }
-\author{David Firth, \email{david.firth@nuffield.ox.ac.uk}}
+\author{David Firth, \email{d.firth@warwick.ac.uk}}
 \examples{
 ## This cannot be run by example() but should be OK when pasted
 ## into an interactive R session

@@ -1,4 +1,4 @@
-R.to.Tcl                Convert a Character Vector to Tcl Format 
+R.to.Tcl                Convert a Character Vector to Tcl Format
 Tcl.to.R                Convert a Tcl List to R Character Vector
 pickFrom                Pick Subsets from a Vector
 relimp                  Relative Importance of Predictors in a
