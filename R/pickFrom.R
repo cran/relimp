@@ -2,8 +2,10 @@ R.to.Tcl <-
 function (character.vector) 
 ##  converts a character vector into a brace-delimited Tcl list
 {
-    paste("{", paste(character.vector, collapse = "} {"), "}", 
-        sep = "")
+    if (length(character.vector) == 0) list()
+    else paste("{", paste(character.vector, collapse = "} {"),
+               "}", 
+               sep = "")
 }
 
 Tcl.to.R <-
@@ -127,11 +129,11 @@ function (vec, nsets = 1, setlabels = NULL, title = "Subset picker",
         tkpack(setframe[[i]], side = "left", padx = 3, pady = 10)
     }
     fun <- deparse(function() {
-        for (j in 1:nsets) {
-            tkconfigure(add.but[[j]], state = "disabled")
-        }
-        if (tclvalue(tkcurselection(listbox[[ppp]])) != "") 
-            tkconfigure(remove.but[[ppp]], state = "normal")
+        if (tclvalue(tkcurselection(listbox[[ppp]])) != ""){
+            for (j in 1:nsets) {
+                tkconfigure(add.but[[j]], state = "disabled")
+            }
+            tkconfigure(remove.but[[ppp]], state = "normal")}
         for (j in (1:nsets)[-ppp]) {
             tkconfigure(remove.but[[j]], state = "disabled")
         }
