@@ -47,10 +47,6 @@ function (x, digits = 3, ...)
 function (object, set1 = NULL, set2 = NULL, label1 = "set1", 
     label2 = "set2", subset = TRUE, response.cat = NULL, ...) 
 {
-    if (version$major == 1 && version$minor < 6.0) {
-        require(MASS, quietly = TRUE)  
-        ## for generic function vcov() and related methods
-    }
     if (inherits(object, "multinom")) {
         require(nnet)
     }
@@ -159,10 +155,6 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
 {
     if (!inherits(object, "multinom")) 
         stop("Object is not of class \"multinom\"")
-    if (version$major == 1 && version$minor < 6.0) {
-        require(MASS, quietly = TRUE)  
-        ## for generic function vcov() and related methods
-    }
     require(nnet)
     if (is.null(response.cat1) || is.null(response.cat2)) 
         stop("arguments `response.cat1' and `response.cat2' must be specified")

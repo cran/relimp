@@ -1,26 +1,51 @@
 "pickFrom" <-
     function (vec, nsets = 1, return.indices = FALSE, setlabels = NULL, 
-              title = "Subset picker", items.label = "Pick from:") 
+              title = "Subset picker", items.label = "Pick from:",
+              list.height = 20, items.scrollbar = TRUE)
 {
     if (!is.vector(vec)) 
         stop("argument `vec' muct be a vector")
     else vec <- as.character(vec)
-    require(tcltk) || stop("tcltk support is absent")
+
     base <- tktoplevel(takefocus = 1)
     tkwm.title(base, title)
     tkwm.geometry(base, "+150+30")
     tkwm.resizable(base, 0, 0)
+
     right.frm <- tkframe(base)
     left.frm <- tkframe(base)
+
     items.label <- tklabel(left.frm, text = items.label)
-    items <- tklistbox(left.frm, listvar = as.character(tclVar(paste("{", 
+    items.list <- as.character(tclVar(paste("{", 
                                  paste(vec, collapse = "} {"), "}",
-                                 sep = ""))), bg = "darkviolet", 
+                                 sep = "")))
+    items.frm <- tkframe(left.frm)
+    items.height <- min(list.height, length(vec))
+    items <- tklistbox(items.frm, listvar = items.list,
+                                 bg = "darkviolet", 
                                  selectmode = "extended", fg = "white",
-                                 height = min(15, length(vec)))
-    tkpack(items.label, items, pady = 10, padx = 5, side = "top", 
-           expand = "true", anchor = "n")
+                                 height = items.height)
+    tkgrid(items, row = 0, column = 0, sticky = "ns")
+    if (items.scrollbar && (length(vec) > items.height)) {
+        items.scrollbar <- tkscrollbar(items.frm,
+                           orient = "vertical",
+                           repeatinterval = 1, 
+                           command = function(...) {
+                              tkyview(items, ...)
+                           })
+        tkconfigure(items, yscrollcommand = function(...) {
+            tkset(items.scrollbar, ...)
+            xy <- string.to.vector(tclvalue(tkget(items.scrollbar)))
+            tkyview.moveto(items, xy[1])
+        })
+    tkgrid(items.scrollbar, row = 0, column = 1, sticky = "ns")
+    }
+    tkpack(items.label, items.frm,
+           pady = 10, padx = 5, side = "top", 
+           expand = "true", anchor = "nw")
+
     tkpack(left.frm, side = "top", expand = "true", anchor = "n")
+
     sets.frm <- tkframe(right.frm)
     setframe <- list()
     label <- list()
@@ -38,6 +63,7 @@
     tkset <- list()
     set <- list()
     Rtkset <- list()
+    subset.height <- min(list.height - 5, length(vec))
     for (i in 1:nsets) {
         tkset[[i]] <- tclVar("")
         TCLlabel[[i]] <- tclVar(setlabels[[i]])
@@ -48,23 +74,13 @@
         listvarname[[i]] <- as.character(tkset[[i]])
         listbox[[i]] <- tklistbox(setframe[[i]],
                                   listvar = listvarname[[i]], 
-                                  bg = "white", height = min(15, length(vec)),
+                                  bg = "white", height = subset.height,
                                   selectmode = "extended")
         labelbox[[i]] <- tkframe(setframe[[i]], width = 250, 
                                  bg = "lightgrey")
         setlabeltext[[i]] <- tklabel(labelbox[[i]],
                                      text = "Label for this set:", 
                                      bg = "lightgrey")
-    }
-    reset.okbutton <- function(tkset) {
-        contentLength <- function(set) {
-            length(Tcl.to.R(tclvalue(set)))
-        }
-        lengths <- lapply(tkset, contentLength)
-        if (any(lengths == 0)) {
-            tkconfigure(ok.but, state = "disabled")
-        }
-        else tkconfigure(ok.but, state = "normal")
     }
     string.to.vector <- function(string.of.indices) {
         as.numeric(strsplit(string.of.indices, split = " ")[[1]])
@@ -77,15 +93,14 @@
                                                   tkcurselection(items)))))
         tclvalue(tkset[[ppp]]) <- R.to.Tcl(vec[set[[ppp]]])
         tkconfigure(add.but[[ppp]], state = "disabled")
-        reset.okbutton(tkset)
     })
     remove.cmd <- deparse(function() {
         Rtkset[[ppp]] <- Tcl.to.R(tclvalue(tkset[[ppp]]))
         out <- 1 + string.to.vector(tclvalue(tkcurselection(listbox[[ppp]])))
-        tclvalue(tkset[[ppp]]) <- R.to.Tcl(Rtkset[[ppp]][-out])
+        if (length(Rtkset[[ppp]]) == length(out)) tclvalue(tkset[[ppp]]) <- ""
+        else tclvalue(tkset[[ppp]]) <- R.to.Tcl(Rtkset[[ppp]][-out])
         tkconfigure(remove.but[[ppp]], state = "disabled")
         tkselection.clear(listbox[[ppp]], "0", "end")
-        reset.okbutton(tkset)
     })
     for (i in 1:nsets) {
         add.but[[i]] <- tkbutton(setframe[[i]], text = "Add", 
@@ -143,7 +158,7 @@
                            tkdestroy(base)
                            tclvalue(OK) <- 1
                        })
-    tkconfigure(ok.but, state = "disabled")
+    tkconfigure(ok.but, state = "normal")
     cancel.but <- tkbutton(buttons.frame, text = "Cancel", width = 10, 
                            command = function() {
                                tkdestroy(base)

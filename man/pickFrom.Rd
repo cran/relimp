@@ -8,7 +8,9 @@
 \usage{
 pickFrom(vec, nsets = 1, return.indices = FALSE, setlabels = NULL,
   title = "Subset picker",
-  items.label = "Pick from:")
+  items.label = "Pick from:",
+  list.height = 20,
+  items.scrollbar = TRUE)
 }
 \arguments{
   \item{vec}{a vector}
@@ -18,6 +20,10 @@ pickFrom(vec, nsets = 1, return.indices = FALSE, setlabels = NULL,
   \item{setlabels}{a character vector of labels for the subsets}
   \item{title}{title of the Tk dialog window}
   \item{items.label}{a label for the set of items to be selected from}
+  \item{list.height}{maximum number of elements of \code{vec} to display
+    at once}
+  \item{items.scrollbar}{logical, whether a scrollbar is to be provided when
+    \code{vec} is longer than \code{list.height}}
 }
 \value{
   A list, with \code{nsets} components.  Each component is a
