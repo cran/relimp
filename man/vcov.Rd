@@ -45,7 +45,7 @@ library(MASS)
 library(survival)
 data(ovarian)
 modl <- survreg(Surv(futime, fustat) ~ ecog.ps + rx,
-    ovarian, dist='weibull',scale=1)
+                ovarian, dist='weibull',scale=1)
 vcov(modl)}
 }
 \keyword{models}

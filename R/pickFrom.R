@@ -92,14 +92,15 @@ function (vec, nsets = 1, setlabels = NULL, title = "Subset picker",
         set[[ppp]] <- match(Tcl.to.R(tclvalue(tkset[[ppp]])), 
             vec)
         set[[ppp]] <- sort(union(set[[ppp]],
-                                 1 + string.to.vector(tkcurselection(items))))
+                       1 + string.to.vector(tclvalue(tkcurselection(items)))))
         tclvalue(tkset[[ppp]]) <- R.to.Tcl(vec[set[[ppp]]])
         tkconfigure(add.but[[ppp]], state = "disabled")
         reset.okbutton(tkset)
     })
     remove.cmd <- deparse(function() {
         Rtkset[[ppp]] <- Tcl.to.R(tclvalue(tkset[[ppp]]))
-        out <- 1 + string.to.vector(tkcurselection(listbox[[ppp]]))
+        out <- 1 +
+            string.to.vector(tclvalue(tkcurselection(listbox[[ppp]])))
         tclvalue(tkset[[ppp]]) <- R.to.Tcl(Rtkset[[ppp]][-out])
         tkconfigure(remove.but[[ppp]], state = "disabled")
         tkselection.clear(listbox[[ppp]], "0", "end")
@@ -129,7 +130,7 @@ function (vec, nsets = 1, setlabels = NULL, title = "Subset picker",
         for (j in 1:nsets) {
             tkconfigure(add.but[[j]], state = "disabled")
         }
-        if (tkcurselection(listbox[[ppp]]) != "") 
+        if (tclvalue(tkcurselection(listbox[[ppp]])) != "") 
             tkconfigure(remove.but[[ppp]], state = "normal")
         for (j in (1:nsets)[-ppp]) {
             tkconfigure(remove.but[[j]], state = "disabled")
@@ -141,7 +142,8 @@ function (vec, nsets = 1, setlabels = NULL, title = "Subset picker",
                           as.character(i), fun))))
     }
     tkbind(items, "<<ListboxSelect>>", function() {
-        items.selected <- vec[1 + string.to.vector(tkcurselection(items))]
+        items.selected <- vec[1 +
+                            string.to.vector(tclvalue(tkcurselection(items)))]
         for (i in 1:nsets) {
             set[[i]] <- Tcl.to.R(tclvalue(tkset[[i]]))
             if (setequal(items.selected, intersect(items.selected, 
