@@ -14,7 +14,7 @@ function (tcl.list)
 ##  vector in R
 {
     tcl.list <- substring(tcl.list, 2, nchar(tcl.list) - 1)
-    strsplit(tcl.list, split = "} {")[[1]]
+    strsplit(tcl.list, split = "} {", fixed = TRUE)[[1]]
 }
 
 "showData" <-
