@@ -147,6 +147,11 @@ function (tcl.list)
                  "notwrapped")
         tkgrid(rnames, row = 1, column = 2)
     }
+    tkconfigure(hdr, state = "disabled")
+    tkconfigure(ftr, state = "disabled")
+    tkconfigure(txt, state = "disabled")
+    tkconfigure(lnames, state = "disabled")
+    tkconfigure(rnames, state = "disabled")
     if (maxheight < nrows) {
         tkgrid(yscroll, row = 1, column = 3, sticky = "ns")
     }
