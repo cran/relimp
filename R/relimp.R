@@ -68,6 +68,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
               colnames(covmat)
             else colnames(coef(object))
         }
+        if (is.null(coefnames)) coefnames <- names(coef(object))
         sets <- pickFrom(coefnames, nsets = 2, return.indices = FALSE,
                          setlabels = c(label1, label2),
             title = "Specify a relative importance (\"relimp\") comparison", 
@@ -90,6 +91,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
             stop("set2 contains NAs")}
         coefnames <- if (!inherits(object, "multinom")) names(coef(object))
                      else colnames(coef(object))
+        if (is.null(coefnames)) coefnames <- names(coef(object))
         set1 <- coefnames[set1]
         set2 <- coefnames[set2]}
     ## notation below follows Silber, Rosenbaum and Ross (1995, JASA)
