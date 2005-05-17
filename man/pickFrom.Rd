@@ -7,6 +7,7 @@
 }
 \usage{
 pickFrom(vec, nsets = 1, return.indices = FALSE, setlabels = NULL,
+  edit.setlabels = TRUE,
   title = "Subset picker",
   items.label = "Pick from:",
   list.height = 20,
@@ -18,6 +19,8 @@ pickFrom(vec, nsets = 1, return.indices = FALSE, setlabels = NULL,
   \item{return.indices}{logical, whether indices (\code{TRUE}) or vector
     contents (\code{FALSE}) are to be returned}
   \item{setlabels}{a character vector of labels for the subsets}
+  \item{edit.setlabels}{logical, determines whether a textbox is
+    provided for editing the label of each subset}
   \item{title}{title of the Tk dialog window}
   \item{items.label}{a label for the set of items to be selected from}
   \item{list.height}{maximum number of elements of \code{vec} to display

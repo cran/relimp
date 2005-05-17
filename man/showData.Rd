@@ -46,6 +46,9 @@ showData(dataframe,
 \value{
   \code{invisible(NULL)}
 }
+\note{An error results if the printed representation of \code{dataframe}
+  exceeds the maximum allowed width of 10000 characters; see
+  \code{\link{options}}.}
 \author{David Firth, \email{d.firth@warwick.ac.uk}}
 \examples{
 ## This cannot be run by example() but should be OK when pasted

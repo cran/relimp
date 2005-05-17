@@ -1,5 +1,6 @@
 "pickFrom" <-
     function (vec, nsets = 1, return.indices = FALSE, setlabels = NULL, 
+              edit.setlabels = TRUE,
               title = "Subset picker", items.label = "Pick from:",
               list.height = 20, items.scrollbar = TRUE)
 {
@@ -7,6 +8,9 @@
         stop("argument `vec' muct be a vector")
     else vec <- as.character(vec)
     require(tcltk) || stop("tcltk support is absent")
+    string.to.vector <- function(string.of.indices) {
+        as.numeric(strsplit(string.of.indices, split = " ")[[1]])
+    }
     base <- tktoplevel(takefocus = 1)
     tkwm.title(base, title)
     tkwm.geometry(base, "+150+30")
@@ -21,9 +25,12 @@
                                  sep = "")))
     items.frm <- tkframe(left.frm)
     items.height <- min(list.height, length(vec))
+    items.width <- max(nchar(vec))
     items <- tklistbox(items.frm, listvar = items.list,
                                  bg = "darkviolet", 
                                  selectmode = "extended", fg = "white",
+                                 font = "Courier",
+                                 width = items.width,
                                  height = items.height)
     tkgrid(items, row = 0, column = 0, sticky = "ns")
     if (items.scrollbar && (length(vec) > items.height)) {
@@ -75,15 +82,14 @@
         listbox[[i]] <- tklistbox(setframe[[i]],
                                   listvar = listvarname[[i]], 
                                   bg = "white", height = subset.height,
+                                  font = "Courier",
+                                  width = items.width,
                                   selectmode = "extended")
         labelbox[[i]] <- tkframe(setframe[[i]], width = 250, 
                                  bg = "lightgrey")
         setlabeltext[[i]] <- tklabel(labelbox[[i]],
                                      text = "Label for this set:", 
                                      bg = "lightgrey")
-    }
-    string.to.vector <- function(string.of.indices) {
-        as.numeric(strsplit(string.of.indices, split = " ")[[1]])
     }
     add.cmd <- deparse(function() {
         set[[ppp]] <- match(Tcl.to.R(tclvalue(tkset[[ppp]])), 
@@ -118,8 +124,10 @@
         labelentry[[i]] <- tkentry(labelbox[[i]],
                                    textvariable = as.character(TCLlabel[[i]]), 
                                    bg = "darkorange", fg = "white")
-        tkpack(setlabeltext[[i]], labelentry[[i]], side = "top", 
+        if (edit.setlabels) {
+            tkpack(setlabeltext[[i]], labelentry[[i]], side = "top", 
                anchor = "w")
+        }
         tkpack(label[[i]], add.but[[i]], remove.but[[i]], listbox[[i]], 
                labelbox[[i]], side = "top", padx = 5, pady = 5)
         tkpack(setframe[[i]], side = "left", padx = 3, pady = 10)
