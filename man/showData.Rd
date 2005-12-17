@@ -7,12 +7,12 @@
 }
 \usage{
 showData(dataframe, 
-       colname.bgcolor = "royalblue", 
-       rowname.bgcolor = "grey90", 
+       colname.bgcolor = "grey50", 
+       rowname.bgcolor = "grey50", 
        body.bgcolor = "white", 
        colname.textcolor = "white", 
-       rowname.textcolor = "darkred", 
-       body.textcolor = "black", 
+       rowname.textcolor = "white", 
+       body.textcolor = "black",
        font = "Courier 12", 
        maxheight = 30, 
        maxwidth = 80, 

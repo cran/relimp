@@ -1,16 +1,16 @@
 R.to.Tcl <-
-function (character.vector) 
+function (character.vector)
 ##  converts a character vector into a brace-delimited Tcl list
 {
     if (length(character.vector) == 0) list()
     else paste("{", paste(character.vector, collapse = "} {"),
-               "}", 
+               "}",
                sep = "")
 }
 
 Tcl.to.R <-
-function (tcl.list) 
-##  converts a fully brace-delimited Tcl list into a character 
+function (tcl.list)
+##  converts a fully brace-delimited Tcl list into a character
 ##  vector in R
 {
     tcl.list <- substring(tcl.list, 2, nchar(tcl.list) - 1)
@@ -19,26 +19,26 @@ function (tcl.list)
 
 "showData" <-
     function (dataframe,
-              colname.bgcolor = "royalblue",
-              rowname.bgcolor = "grey90", 
+              colname.bgcolor = "grey50",
+              rowname.bgcolor = "grey50",
               body.bgcolor = "white",
               colname.textcolor = "white",
-              rowname.textcolor = "darkred", 
+              rowname.textcolor = "white",
               body.textcolor = "black",
               font = "Courier 12",
-              maxheight = 30, 
+              maxheight = 30,
               maxwidth = 80,
               title = NULL,
               rowname.bar = "left",
-              colname.bar = "top", 
+              colname.bar = "top",
               rownumbers = FALSE,
-              placement = "-20-40") 
+              placement = "-20-40")
 {
     object.name <- deparse(substitute(dataframe))
-    if (!is.data.frame(dataframe)) 
+    if (!is.data.frame(dataframe))
         stop(paste(object.name, "is not a data frame"))
     if (is.numeric(rownumbers) &&
-        length(rownumbers) != nrow(dataframe)) 
+        length(rownumbers) != nrow(dataframe))
         stop("rownumbers argument must be TRUE, FALSE or have length nrow(dataframe)")
     require(tcltk) || stop("Tcl/Tk support is absent")
     oldwidth <- unlist(options("width"))
@@ -55,14 +55,14 @@ function (tcl.list)
     base <- tktoplevel()
     tkwm.geometry(base, placement)
     tkwm.title(base, {
-        if (is.null(title)) 
+        if (is.null(title))
             object.name
         else title
     })
     nrows <- length(zz) - 1
-    if (is.numeric(rownumbers)) 
+    if (is.numeric(rownumbers))
         rowname.text <- paste(rownumbers, row.names(dataframe))
-    else if (rownumbers) 
+    else if (rownumbers)
         rowname.text <- paste(1:nrows, row.names(dataframe))
     else rowname.text <- row.names(dataframe)
     namewidth = max(nchar(rowname.text))
@@ -71,39 +71,45 @@ function (tcl.list)
     winwidth <- min(1 + datawidth, maxwidth)
     hdr <- tktext(base,
                   bg = colname.bgcolor,
-                  fg = colname.textcolor, 
+                  fg = colname.textcolor,
                   font = font,
                   height = 1,
-                  width = winwidth)
+                  width = winwidth,
+                  takefocus = TRUE,
+                  exportselection = TRUE)
     ftr <- tktext(base,
                   bg = colname.bgcolor,
-                  fg = colname.textcolor, 
+                  fg = colname.textcolor,
                   font = font,
                   height = 1,
-                  width = winwidth)
+                  width = winwidth,
+                  takefocus = TRUE)
     textheight <- min(maxheight, nrows)
     txt <- tktext(base,
                   bg = body.bgcolor,
-                  fg = body.textcolor, 
+                  fg = body.textcolor,
                   font = font,
                   height = textheight,
                   width = winwidth,
-                  setgrid = 1)
+                  setgrid = 1,
+                  takefocus = 1)
     lnames <- tktext(base,
                      bg = rowname.bgcolor,
-                     fg = rowname.textcolor, 
+                     fg = rowname.textcolor,
                      font = font,
                      height = textheight,
-                     width = namewidth)
+                     width = namewidth,
+                     takefocus = TRUE)
     rnames <- tktext(base,
                      bg = rowname.bgcolor,
-                     fg = rowname.textcolor, 
+                     fg = rowname.textcolor,
                      font = font,
                      height = textheight,
-                     width = namewidth)
+                     width = namewidth,
+                     takefocus = TRUE)
     xscroll <- tkscrollbar(base,
                            orient = "horizontal",
-                           repeatinterval = 1, 
+                           repeatinterval = 1,
                            command = function(...) {
                                tkxview(txt, ...)
                                tkxview(hdr, ...)
@@ -133,7 +139,7 @@ function (tcl.list)
     })
     yscroll <- tkscrollbar(base,
                            orient = "vertical",
-                           repeatinterval = 1, 
+                           repeatinterval = 1,
                            command = function(...) {
                                tkyview(txt, ...)
                                tkyview(lnames, ...)
@@ -160,12 +166,110 @@ function (tcl.list)
     tkbind(txt, "<B2-Motion>", function(x, y) {
         tkscan.dragto(txt, x, y)
     })
+## The next block just enables copying from the text boxes
+{
+    copyText.hdr <- function(){
+        tkcmd("event", "generate",
+              .Tk.ID(hdr),
+              "<<Copy>>")}
+    tkbind(hdr, "<Button-1>", function() tkfocus(hdr))
+    editPopupMenu.hdr <- tkmenu(hdr, tearoff = FALSE)
+    tkadd(editPopupMenu.hdr, "command", label = "Copy <Ctrl-C>",
+              command = copyText.hdr)
+    RightClick.hdr <- function(x,y) # x and y are the mouse coordinates
+    {
+        rootx <- as.integer(tkwinfo("rootx", hdr))
+        rooty <- as.integer(tkwinfo("rooty", hdr))
+        xTxt <- as.integer(x) + rootx
+        yTxt <- as.integer(y) + rooty
+        tkcmd("tk_popup", editPopupMenu.hdr, xTxt, yTxt)
+    }
+    tkbind(hdr, "<Button-3>", RightClick.hdr)
+    tkbind(hdr, "<Control-KeyPress-c>", copyText.hdr)
+    ##
+    copyText.ftr <- function(){
+        tkcmd("event", "generate",
+              .Tk.ID(ftr),
+              "<<Copy>>")}
+    tkbind(ftr, "<Button-1>", function() tkfocus(ftr))
+    editPopupMenu.ftr <- tkmenu(ftr, tearoff = FALSE)
+    tkadd(editPopupMenu.ftr, "command", label = "Copy <Ctrl-C>",
+              command = copyText.ftr)
+    RightClick.ftr <- function(x,y) # x and y are the mouse coordinates
+    {
+        rootx <- as.integer(tkwinfo("rootx", ftr))
+        rooty <- as.integer(tkwinfo("rooty", ftr))
+        xTxt <- as.integer(x) + rootx
+        yTxt <- as.integer(y) + rooty
+        tkcmd("tk_popup", editPopupMenu.ftr, xTxt, yTxt)
+    }
+    tkbind(ftr, "<Button-3>", RightClick.ftr)
+    tkbind(ftr, "<Control-KeyPress-c>", copyText.ftr)
+    ##
+    copyText.txt <- function(){
+        tkcmd("event", "generate",
+              .Tk.ID(txt),
+              "<<Copy>>")}
+    tkbind(txt, "<Button-1>", function() tkfocus(txt))
+    editPopupMenu.txt <- tkmenu(txt, tearoff = FALSE)
+    tkadd(editPopupMenu.txt, "command", label = "Copy <Ctrl-C>",
+              command = copyText.txt)
+    RightClick.txt <- function(x,y) # x and y are the mouse coordinates
+    {
+        rootx <- as.integer(tkwinfo("rootx", txt))
+        rooty <- as.integer(tkwinfo("rooty", txt))
+        xTxt <- as.integer(x) + rootx
+        yTxt <- as.integer(y) + rooty
+        tkcmd("tk_popup", editPopupMenu.txt, xTxt, yTxt)
+    }
+    tkbind(txt, "<Button-3>", RightClick.txt)
+    tkbind(txt, "<Control-KeyPress-c>", copyText.txt)
+    ##
+    copyText.lnames <- function(){
+        tkcmd("event", "generate",
+              .Tk.ID(lnames),
+              "<<Copy>>")}
+    tkbind(lnames, "<Button-1>", function() tkfocus(lnames))
+    editPopupMenu.lnames <- tkmenu(lnames, tearoff = FALSE)
+    tkadd(editPopupMenu.lnames, "command", label = "Copy <Ctrl-C>",
+              command = copyText.lnames)
+    RightClick.lnames <- function(x,y) # x and y are the mouse coordinates
+    {
+        rootx <- as.integer(tkwinfo("rootx", lnames))
+        rooty <- as.integer(tkwinfo("rooty", lnames))
+        xTxt <- as.integer(x) + rootx
+        yTxt <- as.integer(y) + rooty
+        tkcmd("tk_popup", editPopupMenu.lnames, xTxt, yTxt)
+    }
+    tkbind(lnames, "<Button-3>", RightClick.lnames)
+    tkbind(lnames, "<Control-KeyPress-c>", copyText.lnames)
+    ##
+        copyText.rnames <- function(){
+        tkcmd("event", "generate",
+              .Tk.ID(rnames),
+              "<<Copy>>")}
+    tkbind(rnames, "<Button-1>", function() tkfocus(rnames))
+    editPopupMenu.rnames <- tkmenu(rnames, tearoff = FALSE)
+    tkadd(editPopupMenu.rnames, "command", label = "Copy <Ctrl-C>",
+              command = copyText.rnames)
+    RightClick.rnames <- function(x,y) # x and y are the mouse coordinates
+    {
+        rootx <- as.integer(tkwinfo("rootx", rnames))
+        rooty <- as.integer(tkwinfo("rooty", rnames))
+        xTxt <- as.integer(x) + rootx
+        yTxt <- as.integer(y) + rooty
+        tkcmd("tk_popup", editPopupMenu.rnames, xTxt, yTxt)
+    }
+    tkbind(rnames, "<Button-3>", RightClick.rnames)
+    tkbind(rnames, "<Control-KeyPress-c>", copyText.rnames)
+}
+
     tktag.configure(hdr, "notwrapped", wrap = "none")
     tktag.configure(ftr, "notwrapped", wrap = "none")
     tktag.configure(txt, "notwrapped", wrap = "none")
     tktag.configure(lnames, "notwrapped", wrap = "none")
     tktag.configure(rnames, "notwrapped", wrap = "none")
-    tkinsert(txt, "end", paste(paste(yy[-1], collapse = "\n"), 
+    tkinsert(txt, "end", paste(paste(yy[-1], collapse = "\n"),
                                sep = ""), "notwrapped")
     tkgrid(txt, row = 1, column = 1, sticky = "nsew")
     if ("top" %in% colname.bar) {
@@ -178,13 +282,13 @@ function (tcl.list)
     }
     if ("left" %in% rowname.bar) {
         tkinsert(lnames, "end",
-                 paste(rowname.text, collapse = "\n"), 
+                 paste(rowname.text, collapse = "\n"),
                  "notwrapped")
         tkgrid(lnames, row = 1, column = 0, sticky = "ns")
     }
     if ("right" %in% rowname.bar) {
         tkinsert(rnames, "end",
-                 paste(rowname.text, collapse = "\n"), 
+                 paste(rowname.text, collapse = "\n"),
                  "notwrapped")
         tkgrid(rnames, row = 1, column = 2, sticky = "ns")
     }
