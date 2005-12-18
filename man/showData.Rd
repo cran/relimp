@@ -2,8 +2,10 @@
 \alias{showData}
 \title{Display a Data Frame in a Tk Text Widget}
 \description{
-  Prints the contents of a data frame to a Tk text window,
-  for inspection.
+  Displays the contents of a data frame in a modeless Tk text window,
+  for inspection.  Objects not of class \code{data.frame},
+  for example objects of class \code{table}, or \code{matrix},
+  are coerced using \code{as.data.frame} prior to display.
 }
 \usage{
 showData(dataframe, 
@@ -23,7 +25,8 @@ showData(dataframe,
        placement = "-20-40")
 }
 \arguments{
-  \item{dataframe}{A data frame}
+  \item{dataframe}{A data frame, or an object to which
+    \code{as.data.frame()} can be validly applied}
   \item{colname.bgcolor}{A background colour for the 
                variable-names panel}
   \item{rowname.bgcolor}{A background colour for the row-names panel}
@@ -48,7 +51,14 @@ showData(dataframe,
 }
 \note{An error results if the printed representation of \code{dataframe}
   exceeds the maximum allowed width of 10000 characters; see
-  \code{\link{options}}.}
+  \code{\link{options}}.
+
+  Text can be copied from the Tk window to the system clipboard, using
+  <Control-C> or via a right-click pop-up menu.
+
+  On some systems the window may take a few seconds to appear if the
+  data frame is very large.
+}
 \author{David Firth, \email{d.firth@warwick.ac.uk}}
 \examples{
 ## This cannot be run by example() but should be OK when pasted

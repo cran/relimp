@@ -8,7 +8,7 @@
                          items.scrollbar = TRUE,
                          preserve.order = TRUE,
                          listFont = "Courier 12",
-                         labelFont = "Helvetica 12",
+                         labelFont = "Helvetica 11",
                          windowPos = "+150+30")
 {
     if (!is.vector(vec))

@@ -35,8 +35,13 @@ function (tcl.list)
               placement = "-20-40")
 {
     object.name <- deparse(substitute(dataframe))
-    if (!is.data.frame(dataframe))
-        stop(paste(object.name, "is not a data frame"))
+    if (!is.data.frame(dataframe)){
+        temp <- try(dataframe <- as.data.frame(dataframe), silent = FALSE)
+        if (inherits(temp, "try-error")) {
+            stop(paste(object.name, "cannot be coerced to a data frame"))
+        }
+        object.name <- paste("as.data.frame(", object.name, ")", sep = "")
+    }
     if (is.numeric(rownumbers) &&
         length(rownumbers) != nrow(dataframe))
         stop("rownumbers argument must be TRUE, FALSE or have length nrow(dataframe)")
@@ -75,8 +80,7 @@ function (tcl.list)
                   font = font,
                   height = 1,
                   width = winwidth,
-                  takefocus = TRUE,
-                  exportselection = TRUE)
+                  takefocus = TRUE)
     ftr <- tktext(base,
                   bg = colname.bgcolor,
                   fg = colname.textcolor,
@@ -92,8 +96,8 @@ function (tcl.list)
                   height = textheight,
                   width = winwidth,
                   setgrid = 1,
-                  takefocus = 1)
-    lnames <- tktext(base,
+                  takefocus = TRUE)
+     lnames <- tktext(base,
                      bg = rowname.bgcolor,
                      fg = rowname.textcolor,
                      font = font,

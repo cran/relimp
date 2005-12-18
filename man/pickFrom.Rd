@@ -14,7 +14,8 @@ pickFrom(vec, nsets = 1, return.indices = FALSE,
                  list.height = 20,
                  items.scrollbar = TRUE,
                  preserve.order = TRUE,
-                 listFont = "Courier 12", labelFont = "Helvetica 12",
+                 listFont = "Courier 12",
+                 labelFont = "Helvetica 11",
                  windowPos = "+150+30")
 }
 \arguments{
