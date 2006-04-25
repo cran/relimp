@@ -1,5 +1,5 @@
 Package: relimp
-Version: 0.9-5
+Version: 0.9-6
 Title: Relative Contribution of Effects in a Regression Model
 Author: David Firth
 Maintainer: David Firth <d.firth@warwick.ac.uk>
@@ -8,4 +8,4 @@ Description: Functions to facilitate inference on the relative importance of pre
 Depends: R (>= 1.8.0)
 Suggests: nnet, tcltk
 License: GPL (version 2 or later)
-Packaged: Sun Dec 18 21:31:40 2005; david
+Packaged: Tue Apr 25 17:06:14 2006; david

@@ -1,6 +1,8 @@
 "pickFrom" <-  function (vec, nsets = 1, return.indices = FALSE,
                          setlabels = NULL,
                          edit.setlabels = TRUE,
+                         subset = TRUE,
+                         warningText = "one or more selections empty",
                          title = "Subset picker",
                          items.label = "Pick from:",
                          labels.prompt = "Your label for this set:",
@@ -15,6 +17,10 @@
         stop("argument `vec' muct be a vector")
     vec.is.numeric <- if (is.numeric(vec)) TRUE else FALSE
     vec.as.char <- as.character(vec)
+
+    if (is.character(subset)) subset <- match(subset(names(vec)))
+    if (is.logical(subset)) subset <- seq(along = vec)[subset]
+
     require(tcltk) || stop("tcltk support is absent")
     string.to.vector <- function(string.of.indices) {
         as.numeric(strsplit(string.of.indices, split = " ")[[1]])
@@ -27,9 +33,10 @@
     right.frm <- tkframe(base)
     left.frm <- tkframe(base)
 
+    vec.to.pickfrom <- vec.as.char[subset]
 
     items.list <- as.character(tclVar(paste("{",
-                                 paste(vec.as.char, collapse = "} {"), "}",
+                                 paste(vec.to.pickfrom, collapse = "} {"), "}",
                                  sep = "")))
     items.frm <- tkframe(left.frm)
 
@@ -38,8 +45,8 @@
                            anchor = "w",
                            justify = "left")
     tkgrid(items.label, row = 0, columnspan = 2, sticky = "w")
-    items.height <- min(list.height, length(vec))
-    items.width <- max(8, max(nchar(vec.as.char)))
+    items.height <- min(list.height, length(vec.to.pickfrom))
+    items.width <- max(8, max(nchar(vec.to.pickfrom)))
     items <- tklistbox(items.frm,
                        listvar = items.list,
                        bg = "grey50",
@@ -105,7 +112,7 @@
     tkset <- list()
     set <- list()
     Rtkset <- list()
-    subset.height <- min(list.height - 5, length(vec))
+    subset.height <- min(list.height - 5, length(vec.to.pickfrom))
     for (i in 1:nsets) {
         tkset[[i]] <- tclVar("")
         TCLlabel[[i]] <- tclVar(setlabels[[i]])
@@ -130,12 +137,12 @@
     }
     add.cmd <- deparse(function() {
         set[[ppp]] <- match(Tcl.to.R(tclvalue(tkset[[ppp]])),
-                            vec.as.char)
+                            vec.to.pickfrom)
         set[[ppp]] <- union(set[[ppp]],
                            1 + string.to.vector(tclvalue(
                                                   tkcurselection(items))))
         if (as.logical(tclObj(preserve.order))) set[[ppp]] <- sort(set[[ppp]])
-        tclvalue(tkset[[ppp]]) <- R.to.Tcl(vec.as.char[set[[ppp]]])
+        tclvalue(tkset[[ppp]]) <- R.to.Tcl(vec.to.pickfrom[set[[ppp]]])
         tkconfigure(add.but[[ppp]], state = "disabled")
     })
     remove.cmd <- deparse(function() {
@@ -190,7 +197,7 @@
                 eval(parse(text = gsub("ppp", as.character(i), fun1))))
     }
     tkbind(items, "<<ListboxSelect>>", function() {
-        items.selected <- vec.as.char[1 + string.to.vector(tclvalue(
+        items.selected <- vec.to.pickfrom[1 + string.to.vector(tclvalue(
                                                  tkcurselection(items)))]
         for (i in 1:nsets) {
             set[[i]] <- Tcl.to.R(tclvalue(tkset[[i]]))
@@ -223,16 +230,18 @@
     .Tcl("update idletasks")
     if (tclvalue(OK) == "1") {
         sets <- lapply(tkset, function(set) {
-            match(Tcl.to.R(tclvalue(set)), vec.as.char)
+            match(Tcl.to.R(tclvalue(set)), vec.to.pickfrom)
         })
+        if (any(sapply(sets, length) == 0)) {
+            warning(warningText)
+        }
         labels <- lapply(TCLlabel, tclvalue)
         names(sets) <- labels
         result <- sets
-    }
-    else result <- NULL
-    if (return.indices)
-        return(result)
-    else return(lapply(result, function(set) {
-        vec[set]
-    }))
+    } else return(NULL)
+    return(
+           if (return.indices)
+           lapply(result, function(set) subset[set])
+           else lapply(result, function(set) (vec[subset])[set])
+           )
 }

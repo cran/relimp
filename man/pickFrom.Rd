@@ -8,6 +8,8 @@
 \usage{
 pickFrom(vec, nsets = 1, return.indices = FALSE,
                  setlabels = NULL, edit.setlabels = TRUE,
+                 subset = TRUE,
+                 warningText = "one or more selections empty",
                  title = "Subset picker",
                  items.label = "Pick from:",
                  labels.prompt = "Your label for this set:",
@@ -20,12 +22,17 @@ pickFrom(vec, nsets = 1, return.indices = FALSE,
 }
 \arguments{
   \item{vec}{a vector}
-  \item{nsets}{an integer, the number of subsets to be selected}
+  \item{nsets}{a positive integer, the number of subsets to be selected}
   \item{return.indices}{logical, whether indices (\code{TRUE}) or vector
     contents (\code{FALSE}) are to be returned}
   \item{setlabels}{a character vector of labels for the subsets}
   \item{edit.setlabels}{logical, determines whether a textbox is
     provided for editing the label of each subset}
+  \item{subset}{logical, character  or numeric vector indicating which
+    elements of \code{vec} should be made available for selection.  Default is
+    to make all elements available.}
+  \item{warningText}{character, text to use as a warning in situations
+    where no selection is made into one or more of the specified sets}
   \item{title}{character, title of the Tk dialog window}
   \item{items.label}{character,
     a label for the set of items to be selected from}
@@ -42,10 +49,20 @@ pickFrom(vec, nsets = 1, return.indices = FALSE,
     display}
 }
 \value{
-  A list, with \code{nsets} components.  Each component is a
+  EITHER (if the dialog is ended with "OK")
+  a list, with \code{nsets} components.  Each component is a
   selected sub-vector, or a numeric vector of indices for a
-  selected sub-vector (if \code{return.indices} is \code{TRUE});
-  the component names are as specified in \code{setlabels}, or interactively.
+  selected sub-vector (if \code{return.indices} is \code{TRUE}).
+  The component names are as specified in \code{setlabels}, or
+  as specified interactively.
+
+  OR (if either "Cancel" or the close-window control button is used)
+  \code{NULL}.
+}
+
+\details{
+  If \code{return.indices} is used together with \code{subset}, the
+  indices returned relate to \code{vec}, not to \code{vec[subset]}.
 }
 \author{David Firth, \email{d.firth@warwick.ac.uk}}
 
