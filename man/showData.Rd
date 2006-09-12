@@ -22,7 +22,8 @@ showData(dataframe,
        rowname.bar = "left",
        colname.bar = "top",
        rownumbers = FALSE, 
-       placement = "-20-40")
+       placement = "-20-40",
+       suppress.X11.warnings = TRUE)
 }
 \arguments{
   \item{dataframe}{A data frame, or an object to which
@@ -45,6 +46,8 @@ showData(dataframe,
     \code{"bottom"}, or \code{c("top","bottom")}, or \code{NULL}}
   \item{rownumbers}{logical, whether row numbers should be displayed}
   \item{placement}{Position of the bottom right corner of the window}
+  \item{suppress.X11.warnings}{logical, if \code{TRUE} then any X11
+    warnings are suppressed}
 }
 \value{
   \code{invisible(NULL)}

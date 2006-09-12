@@ -32,8 +32,18 @@ function (tcl.list)
               rowname.bar = "left",
               colname.bar = "top",
               rownumbers = FALSE,
-              placement = "-20-40")
+              placement = "-20-40",
+              suppress.X11.warnings = TRUE)
 {
+    if (suppress.X11.warnings) { ## as in John Fox's Rcmdr package
+        messages.connection <- textConnection(".messages", open = "w",
+                                              local = TRUE)
+        sink(messages.connection, type = "message")
+        on.exit({
+            sink(type="message")
+            close(messages.connection)
+        })
+    }
     object.name <- deparse(substitute(dataframe))
     if (!is.data.frame(dataframe)){
         temp <- try(dataframe <- as.data.frame(dataframe), silent = FALSE)
@@ -173,7 +183,7 @@ function (tcl.list)
 ## The next block just enables copying from the text boxes
 {
     copyText.hdr <- function(){
-        tkcmd("event", "generate",
+        tcl("event", "generate",
               .Tk.ID(hdr),
               "<<Copy>>")}
     tkbind(hdr, "<Button-1>", function() tkfocus(hdr))
@@ -186,13 +196,13 @@ function (tcl.list)
         rooty <- as.integer(tkwinfo("rooty", hdr))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tkcmd("tk_popup", editPopupMenu.hdr, xTxt, yTxt)
+        tcl("tk_popup", editPopupMenu.hdr, xTxt, yTxt)
     }
     tkbind(hdr, "<Button-3>", RightClick.hdr)
     tkbind(hdr, "<Control-KeyPress-c>", copyText.hdr)
     ##
     copyText.ftr <- function(){
-        tkcmd("event", "generate",
+        tcl("event", "generate",
               .Tk.ID(ftr),
               "<<Copy>>")}
     tkbind(ftr, "<Button-1>", function() tkfocus(ftr))
@@ -205,13 +215,13 @@ function (tcl.list)
         rooty <- as.integer(tkwinfo("rooty", ftr))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tkcmd("tk_popup", editPopupMenu.ftr, xTxt, yTxt)
+        tcl("tk_popup", editPopupMenu.ftr, xTxt, yTxt)
     }
     tkbind(ftr, "<Button-3>", RightClick.ftr)
     tkbind(ftr, "<Control-KeyPress-c>", copyText.ftr)
     ##
     copyText.txt <- function(){
-        tkcmd("event", "generate",
+        tcl("event", "generate",
               .Tk.ID(txt),
               "<<Copy>>")}
     tkbind(txt, "<Button-1>", function() tkfocus(txt))
@@ -224,13 +234,13 @@ function (tcl.list)
         rooty <- as.integer(tkwinfo("rooty", txt))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tkcmd("tk_popup", editPopupMenu.txt, xTxt, yTxt)
+        tcl("tk_popup", editPopupMenu.txt, xTxt, yTxt)
     }
     tkbind(txt, "<Button-3>", RightClick.txt)
     tkbind(txt, "<Control-KeyPress-c>", copyText.txt)
     ##
     copyText.lnames <- function(){
-        tkcmd("event", "generate",
+        tcl("event", "generate",
               .Tk.ID(lnames),
               "<<Copy>>")}
     tkbind(lnames, "<Button-1>", function() tkfocus(lnames))
@@ -243,13 +253,13 @@ function (tcl.list)
         rooty <- as.integer(tkwinfo("rooty", lnames))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tkcmd("tk_popup", editPopupMenu.lnames, xTxt, yTxt)
+        tcl("tk_popup", editPopupMenu.lnames, xTxt, yTxt)
     }
     tkbind(lnames, "<Button-3>", RightClick.lnames)
     tkbind(lnames, "<Control-KeyPress-c>", copyText.lnames)
     ##
         copyText.rnames <- function(){
-        tkcmd("event", "generate",
+        tcl("event", "generate",
               .Tk.ID(rnames),
               "<<Copy>>")}
     tkbind(rnames, "<Button-1>", function() tkfocus(rnames))
@@ -262,7 +272,7 @@ function (tcl.list)
         rooty <- as.integer(tkwinfo("rooty", rnames))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tkcmd("tk_popup", editPopupMenu.rnames, xTxt, yTxt)
+        tcl("tk_popup", editPopupMenu.rnames, xTxt, yTxt)
     }
     tkbind(rnames, "<Button-3>", RightClick.rnames)
     tkbind(rnames, "<Control-KeyPress-c>", copyText.rnames)
@@ -296,8 +306,8 @@ function (tcl.list)
                  "notwrapped")
         tkgrid(rnames, row = 1, column = 2, sticky = "ns")
     }
-    tkconfigure(hdr, state = "disabled")
-    tkconfigure(ftr, state = "disabled")
+#    tkconfigure(hdr, state = "disabled")
+#    tkconfigure(ftr, state = "disabled")
     tkconfigure(txt, state = "disabled")
     tkconfigure(lnames, state = "disabled")
     tkconfigure(rnames, state = "disabled")
@@ -311,5 +321,5 @@ function (tcl.list)
     tkgrid.columnconfigure(base, 1, weight = 1)
     tkwm.maxsize(base, 1 + datawidth, nrows)
     tkwm.minsize(base, 1 + nchar(names(dataframe)[1]), 1)
-    invisible(NULL)
+invisible(NULL)
 }
