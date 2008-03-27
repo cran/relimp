@@ -13,6 +13,7 @@
                          labelFont = "Helvetica 11",
                          windowPos = "+150+30")
 {
+    ppp <- NULL ## only to avoid a NOTE at package check time
     if (!is.vector(vec))
         stop("argument `vec' muct be a vector")
     vec.is.numeric <- if (is.numeric(vec)) TRUE else FALSE

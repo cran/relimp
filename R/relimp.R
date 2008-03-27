@@ -1,5 +1,5 @@
 "print.relimp" <-
-function (x, digits = 3, ...) 
+function (x, digits = 3, ...)
 {
     object <- x
     sets <- object$sets
@@ -14,61 +14,61 @@ function (x, digits = 3, ...)
     }
     sets <- as.data.frame(sets)
     response.cat <- object$response.category
-    names(sets) <- c(paste("     Numerator effects (\"", labels[1], 
-        "\")", sep = ""), paste("     Denominator effects (\"", 
-        labels[2], "\")", sep = ""))
-    sink(textConnection("zz", "w"))
-    print(sets, rowlab = rep("", nrow(sets)))
-    sink()
+    names(sets) <- c(paste("     Numerator effects (\"", labels[1],
+                           "\")", sep = ""),
+                     paste("     Denominator effects (\"",
+                           labels[2], "\")", sep = ""))
+    zz <- capture.output(print(sets, rowlab = rep("", nrow(sets))))
     CI95 <- object$log.ratio +
         1.96 * (object$se.log.ratio) * c(-1, 1)
-    cat(paste("\n", "Relative importance summary for model\n", 
-        "    ", paste(deparse(object$model), collapse = "\n"), "\n",
-        if (!is.null(response.cat)) {
-            paste("response category", response.cat, "\n\n")
-           },
-        if (!is.null(object$dispersion)) 
-            paste("with dispersion set to", object$dispersion, 
-                "\n\n")
-        else "\n", paste(zz, "", collapse = "\n"),
-              "\n\n", "Ratio of effect standard deviations: ", 
-        round(exp(object$log.ratio), digits),
-              "\n", "Log(sd ratio):                 ", 
-        round(object$log.ratio, digits), "   (se ",
+    cat(paste("\n", "Relative importance summary for model\n",
+              "    ", paste(deparse(object$model), collapse = "\n"), "\n",
+              if (!is.null(response.cat)) {
+                  paste("response category", response.cat, "\n\n")
+              },
+              if (!is.null(object$dispersion))
+              paste("with dispersion set to", object$dispersion,
+                    "\n\n")
+              else "\n", paste(zz, "", collapse = "\n"),
+              "\n\n", "Ratio of effect standard deviations: ",
+              round(exp(object$log.ratio), digits),
+              "\n", "Log(sd ratio):                 ",
+              round(object$log.ratio, digits), "   (se ",
               round(object$se.log.ratio, digits), ")\n\n",
-              "Approximate 95% confidence interval for log(sd ratio): (", 
-        paste(round(CI95, digits), collapse = ","), ")\n",
-              "Approximate 95% confidence interval for sd ratio:      (", 
-        paste(round(exp(CI95), digits), collapse = ","), ")\n", 
-        sep = ""))
-    rm(zz, envir = .GlobalEnv)
+              "Approximate 95% confidence interval for log(sd ratio): (",
+              paste(round(CI95, digits), collapse = ","), ")\n",
+              "Approximate 95% confidence interval for sd ratio:      (",
+              paste(round(exp(CI95), digits), collapse = ","), ")\n",
+              sep = "")
+        )
 }
+
 "relimp" <-
-function (object, set1 = NULL, set2 = NULL, label1 = "set1", 
-    label2 = "set2", subset = TRUE, response.cat = NULL, ...) 
+function (object, set1 = NULL, set2 = NULL, label1 = "set1",
+    label2 = "set2", subset = TRUE, response.cat = NULL, ...)
 {
     if (inherits(object, "multinom")) {
         require(nnet)
     }
-    if (inherits(object, "multinom") && is.null(response.cat)) 
+    if (inherits(object, "multinom") && is.null(response.cat))
         stop("argument `response.cat' must be specified")
     if (!is.null(response.cat))
         response.cat <- as.character(response.cat) ## numbers get coerced
-    if (inherits(object, "multinom") && !(response.cat %in% 
-        rownames(coef(object)))) 
+    if (inherits(object, "multinom") && !(response.cat %in%
+                                          rownames(coef(object))))
         stop("argument `response.cat' not valid for this model")
     covmat <- vcov(object, ...)
     if (is.null(set1) || is.null(set2)) {
         coefnames <- {
-            if (!inherits(object, "multinom")) 
-              colnames(covmat)
+            if (!inherits(object, "multinom"))
+                colnames(covmat)
             else colnames(coef(object))
         }
         if (is.null(coefnames)) coefnames <- names(coef(object))
         sets <- pickFrom(coefnames, nsets = 2, return.indices = FALSE,
                          setlabels = c(label1, label2),
-            title = "Specify a relative importance (\"relimp\") comparison", 
-            items.label = "Model coefficients")
+                         title = "Specify a relative importance (\"relimp\") comparison",
+                         items.label = "Model coefficients")
         if (!is.null(sets)) {
             set1 <- sets[[1]]
             set2 <- sets[[2]]
@@ -86,19 +86,19 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
         if (any(is.na(coef(object)[set2]))){
             stop("set2 contains NAs")}
         coefnames <- if (!inherits(object, "multinom")) names(coef(object))
-                     else colnames(coef(object))
+        else colnames(coef(object))
         if (is.null(coefnames)) coefnames <- names(coef(object))
         set1 <- coefnames[set1]
         set2 <- coefnames[set2]}
     ## notation below follows Silber, Rosenbaum and Ross (1995, JASA)
     coefs <- {
-        if (!inherits(object, "multinom")) 
+        if (!inherits(object, "multinom"))
             coef(object)
         else coef(object)[response.cat, ]
     }
     if (inherits(object, "multinom")) {
         indices <- t(matrix(1:prod(dim(coef(object))),
-                            nrow = ncol(coef(object)), 
+                            nrow = ncol(coef(object)),
                             ncol = nrow(coef(object)),
                             dimnames = dimnames(t(coef(object)))))
         indices <- indices[response.cat, ]
@@ -106,72 +106,72 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     }
     beta <- coefs[set1, drop = FALSE]
     gamma <- coefs[set2, drop = FALSE]
-    if (!is.matrix(object$x)) 
+    if (!is.matrix(object$x))
         modelmatrix <- model.matrix(object)
     else modelmatrix <- object$x
-    if (is.numeric(subset) || (is.logical(subset) && (length(subset) == 
-        1 || length(subset) == nrow(modelmatrix)))) {
+    if (is.numeric(subset) || (is.logical(subset) && (length(subset) ==
+                               1 || length(subset) == nrow(modelmatrix)))) {
         X <- modelmatrix[subset, set1, drop = FALSE]
         H <- modelmatrix[subset, set2, drop = FALSE]
     }
     else stop(
-     paste("\nspecified subset should be either a vector of numeric indices,", 
-        "\nor a logical vector with length equal to the number of rows", 
+     paste("\nspecified subset should be either a vector of numeric indices,",
+        "\nor a logical vector with length equal to the number of rows",
         "\nin the model frame for model", paste("\"",
-                                                deparse(match.call()$object), 
-            "\"", sep = "")))
+                                                deparse(match.call()$object),
+                                                "\"", sep = "")))
     X <- sweep(X, 2, apply(X, 2, mean))
     H <- sweep(H, 2, apply(H, 2, mean))
     indices <- if (inherits(object, "multinom")){
-                    c(paste(response.cat, set1, sep=":"),
-                      paste(response.cat, set2, sep=":"))}
-               else c(set1, set2)
+        c(paste(response.cat, set1, sep=":"),
+          paste(response.cat, set2, sep=":"))}
+    else c(set1, set2)
     Sigma <- covmat[indices, indices]
     pi <- X %*% beta
     phi <- H %*% gamma
     sd.ratio <- sd(pi)/sd(phi)
     log.ratio <- log(sd.ratio)
-    w <- rbind((t(X) %*% pi)/sum(pi * pi), (-t(H) %*% phi)/sum(phi * 
-        phi))
+    w <- rbind((t(X) %*% pi)/sum(pi * pi), (-t(H) %*% phi)/sum(phi * phi))
     var.log.ratio <- t(w) %*% Sigma %*% w
     se.log.ratio <- sqrt(var.log.ratio)
     Call <- match.call() ## to see if the dispersion parameter was given
     dispersion <- {
-        if (pmatch("disp", names(Call), 0) > 0) 
+        if (pmatch("disp", names(Call), 0) > 0)
             Call$dispersion
         else NULL
     }
-    ans <- list(model = object$call, response.category = response.cat, 
-        dispersion = dispersion, sets = list(set1, set2), 
-        log.ratio = log.ratio, se.log.ratio = se.log.ratio)
+    ans <- list(model = object$call, response.category = response.cat,
+                dispersion = dispersion, sets = list(set1, set2),
+                log.ratio = log.ratio, se.log.ratio = se.log.ratio)
     names(ans$sets) <- c(label1, label2)
     class(ans) <- "relimp"
     return(ans)
 }
+
 "relrelimp" <-
-function (object, set1 = NULL, set2 = NULL, label1 = "set1", 
+function (object, set1 = NULL, set2 = NULL, label1 = "set1",
           label2 = "set2", subset = TRUE,
-          response.cat1 = NULL, response.cat2 = NULL) 
+          response.cat1 = NULL, response.cat2 = NULL)
 {
-    if (!inherits(object, "multinom")) 
+    if (!inherits(object, "multinom"))
         stop("Object is not of class \"multinom\"")
     require(nnet)
-    if (is.null(response.cat1) || is.null(response.cat2)) 
+    if (is.null(response.cat1) || is.null(response.cat2))
         stop("arguments `response.cat1' and `response.cat2' must be specified")
     response.cat1 <- as.character(response.cat1) ## numbers get coerced
     response.cat2 <- as.character(response.cat2)
-    if (!(response.cat1 %in% rownames(coef(object))) || !(response.cat2 %in% 
-        rownames(coef(object)))) 
+    if (!(response.cat1 %in% rownames(coef(object))) || !(response.cat2 %in%
+                                                rownames(coef(object))))
         stop("`response.cat' argument(s) not valid for this model")
     if (is.null(set1) || is.null(set2)) {
         coefnames <- {
-            if (!inherits(object, "multinom")) 
-              names(coef(object))
+            if (!inherits(object, "multinom"))
+                names(coef(object))
             else colnames(coef(object))
         }
         sets <- pickFrom(coefnames, nsets = 2, return.indices = TRUE,
                          setlabels = c(label1, label2),
-          title = "Specify a relative importance (\"relimp\") comparison", 
+                         title = "Specify a relative importance (\"relimp\") comparison",
             items.label = "Model coefficients")
         if (!is.null(sets)) {
             set1 <- sets[[1]]
@@ -187,10 +187,12 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     ## notation below follows Silber, Rosenbaum and Ross (1995, JASA)
     coefs <- coef(object)[c(response.cat1, response.cat2), ]
     covmat <- vcov(object)
-    indices <- t(matrix(1:prod(dim(coef(object))), nrow = ncol(coef(object)), 
-        ncol = nrow(coef(object)), dimnames = dimnames(t(coef(object)))))
-    indices <- as.vector(t(indices[c(response.cat1, response.cat2), 
-        ]))
+    indices <- t(matrix(1:prod(dim(coef(object))),
+                        nrow = ncol(coef(object)),
+                        ncol = nrow(coef(object)),
+                        dimnames = dimnames(t(coef(object)))))
+    indices <- as.vector(t(indices[c(response.cat1, response.cat2),
+                                   ]))
     covmat <- covmat[indices, indices]
     beta1 <- as.vector(coefs[1, set1, drop = FALSE])
     gamma1 <- as.vector(coefs[1, set2, drop = FALSE])
@@ -199,20 +201,21 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     names <- colnames(coefs)
     names1 <- names[set1]
     names2 <- names[set2]
-    if (!is.matrix(object$x)) 
+    if (!is.matrix(object$x))
         modelmatrix <- model.matrix(object)
     else modelmatrix <- object$x
-    if (is.numeric(subset) || (is.logical(subset) && (length(subset) == 
-        1 || length(subset) == nrow(modelmatrix)))) {
+    if (is.numeric(subset) || (is.logical(subset) &&
+                               (length(subset) == 1 ||
+                                length(subset) == nrow(modelmatrix)))) {
         X <- modelmatrix[subset, set1, drop = FALSE]
         H <- modelmatrix[subset, set2, drop = FALSE]
     }
     else stop(
-     paste("\nspecified subset should be either a vector of numeric indices,", 
-        "\nor a logical vector with length equal to the number of rows", 
-        "\nin the model frame for model", paste("\"",
-                                                deparse(match.call()$object), 
-            "\"", sep = "")))
+              paste("\nspecified subset should be either a vector of numeric indices,",
+                    "\nor a logical vector with length equal to the number of rows",
+                    "\nin the model frame for model",
+                    paste("\"", deparse(match.call()$object),
+                          "\"", sep = "")))
     X <- sweep(X, 2, apply(X, 2, mean))
     H <- sweep(H, 2, apply(H, 2, mean))
     set1a <- set1 + ncol(coefs)
@@ -246,7 +249,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     se.log.ratioratio <- sqrt(var.log.ratioratio)
     Call <- match.call()  ## to see if the dispersion parameter was given
     dispersion <- {
-        if (pmatch("disp", names(Call), 0) > 0) 
+        if (pmatch("disp", names(Call), 0) > 0)
             Call$dispersion
         else NULL
     }
@@ -254,8 +257,9 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
                 response.category = c(response.cat1, response.cat2),
                 dispersion = dispersion,
                 sets = list(names1, names2),
-                log.ratio = c(log.ratio1, log.ratio2, log.ratioratio), 
-                se.log.ratio = c(se.log.ratio1, se.log.ratio2,
+                log.ratio = c(log.ratio1, log.ratio2, log.ratioratio),
+                se.log.ratio = c(se.log.ratio1,
+                                 se.log.ratio2,
                                  se.log.ratioratio)
                 )
     names(ans$sets) <- c(label1, label2)

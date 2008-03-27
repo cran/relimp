@@ -11,8 +11,8 @@
 \usage{
 relimp(object, set1=NULL,  set2=NULL, label1="set1", label2="set2", 
           subset=TRUE, 
-          response.cat=NULL, ...)
-print.relimp(x, digits=3, ...)
+          response.cat=NULL, \dots)
+\method{print}{relimp}(x, digits=3, \dots)
 }
 
 \arguments{
