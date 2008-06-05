@@ -2,8 +2,8 @@
 \alias{pickFrom}
 \title{Pick Subsets from a Vector}
 \description{
-  Provides a Tk dialog for interactive selection of one or more subsets
-  from a vector.  Requires the \code{tcltk} package.
+  Provides a Tk dialog or a text-based menu for interactive selection of
+  one or more subsets from a vector.
 }
 \usage{
 pickFrom(vec, nsets = 1, return.indices = FALSE,
@@ -11,11 +11,12 @@ pickFrom(vec, nsets = 1, return.indices = FALSE,
                  subset = TRUE,
                  warningText = "one or more selections empty",
                  title = "Subset picker",
-                 items.label = "Pick from:",
-                 labels.prompt = "Your label for this set:",
+                 items.label = "Pick from",
+                 labels.prompt = "Your label for this set",
                  list.height = 20,
                  items.scrollbar = TRUE,
                  preserve.order = TRUE,
+                 graphics = TRUE,
                  listFont = "Courier 12",
                  labelFont = "Helvetica 11",
                  windowPos = "+150+30")
@@ -43,36 +44,47 @@ pickFrom(vec, nsets = 1, return.indices = FALSE,
     \code{vec} is longer than \code{list.height}}
   \item{preserve.order}{logical: should the order of items in \code{vec}
     be maintained in all of the returned subsets?}
+  \item{graphics}{logical: should a dialog be used, if possible?}
   \item{listFont}{a Tk font specification for the items list and subsets}
   \item{labelFont}{a Tk font specification for the labels entrybox}
   \item{windowPos}{position of the Tk dialog, in pixels from top left of
     display}
 }
+\details{
+  If \code{graphics = TRUE} and the \code{tcltk} package is operational,
+  a Tk dialog is used, otherwise a text menu. 
+  
+  If \code{return.indices} is used together with \code{subset}, the
+  indices returned relate to \code{vec}, not to \code{vec[subset]}.
+}
 \value{
-  EITHER (if the dialog is ended with "OK")
+  EITHER (in the case of a text menu or if the dialog is ended with "OK")
   a list, with \code{nsets} components.  Each component is a
   selected sub-vector, or a numeric vector of indices for a
   selected sub-vector (if \code{return.indices} is \code{TRUE}).
   The component names are as specified in \code{setlabels}, or
   as specified interactively.
 
-  OR (if either "Cancel" or the close-window control button is used)
+  OR (if the dialog is ended either "Cancel" or the close-window control
+  button is used) 
   \code{NULL}.
 }
-
-\details{
-  If \code{return.indices} is used together with \code{subset}, the
-  indices returned relate to \code{vec}, not to \code{vec[subset]}.
-}
-\author{David Firth, \email{d.firth@warwick.ac.uk}}
+\author{David Firth, with contributions from Heather Turner}
 
 \examples{
-## This cannot be run by example() but should be OK when pasted
+## These examples cannot be run by example() but should be OK when pasted
 ## into an interactive R session
 \dontrun{
 pickFrom(c("apple", "banana", "plum", "grapefruit"), nsets = 2,
   preserve.order = FALSE,
   setlabels = c("Fruits I like", "Fruits I tolerate"))
+}
+\dontrun{
+## Type selections as e.g. 1:2, 4
+pickFrom(c("apple", "banana", "plum", "grapefruit"), nsets = 2,
+  preserve.order = FALSE,
+  setlabels = c("Fruits I like", "Fruits I tolerate"),
+  graphics = FALSE)
 }}
 \keyword{utilities}
 
