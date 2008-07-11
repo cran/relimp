@@ -35,15 +35,6 @@ function (tcl.list)
               placement = "-20-40",
               suppress.X11.warnings = TRUE)
 {
-    if (suppress.X11.warnings) { ## as in John Fox's Rcmdr package
-        messages.connection <- textConnection(".messages", open = "w",
-                                              local = TRUE)
-        sink(messages.connection, type = "message")
-        on.exit({
-            sink(type="message")
-            close(messages.connection)
-        })
-    }
     object.name <- deparse(substitute(dataframe))
     if (!is.data.frame(dataframe)){
         temp <- try(dataframe <- as.data.frame(dataframe), silent = FALSE)
@@ -53,8 +44,9 @@ function (tcl.list)
         object.name <- paste("as.data.frame(", object.name, ")", sep = "")
     }
     if (is.numeric(rownumbers) &&
-        length(rownumbers) != nrow(dataframe))
+        length(rownumbers) != nrow(dataframe)) {
         stop("rownumbers argument must be TRUE, FALSE or have length nrow(dataframe)")
+    }
 #    require(tcltk) || stop("Tcl/Tk support is absent")   ## now "Imports:"
     oldwidth <- unlist(options("width"))
     options(width = 10000)
@@ -67,6 +59,15 @@ function (tcl.list)
     if (length(zz) > 1 + nrow(dataframe)) stop(
        "data frame too wide")
     options(width = oldwidth)
+    if (suppress.X11.warnings) { ## as in John Fox's Rcmdr package
+        messages.connection <- textConnection(".messages", open = "w",
+                                              local = TRUE)
+        sink(messages.connection, type = "message")
+        on.exit({
+            sink(type="message")
+            close(messages.connection)
+        })
+    }
     base <- tktoplevel()
     tkwm.geometry(base, placement)
     tkwm.title(base, {
