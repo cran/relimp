@@ -20,7 +20,7 @@ relimp(object, set1=NULL,  set2=NULL, label1="set1", label2="set2",
     \code{\link{lm}}, \code{\link{glm}}, \code{\link[survival]{coxph}},
     \code{\link[survival]{survreg}}, 
     \code{\link[nnet]{multinom}}, 
-    \code{\link[MASS]{polr}}, \code{\link[nlme]{gls}} or \code{\link[nlme]{lme}}}
+    \code{\link[MASS]{polr}} or \code{\link[nlme]{gls}}}
   \item{set1}{An index or vector of indices for the effects to be
     included in the numerator of the comparison}
   \item{set2}{An index or vector of indices for the effects to be
