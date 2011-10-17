@@ -1,0 +1,11 @@
+1d5dbab8c9f9cd49fb2898d58ef5fa5b *DESCRIPTION
+845582ecbd46ab8de02eeccbe4cba2d6 *NAMESPACE
+9942c5121b317407fb29b2399b96f23a *R/pickFrom.R
+83c1ef5cf531699ae0fe153703c77052 *R/relimp.R
+dcff866f49915f00cf7a60e42baeee2c *R/showData.R
+7ab24c6803bf57c360d1755ebc260d21 *man/R.to.Tcl.Rd
+c9eebd9817aa8eb54b7297bdb5a1faa1 *man/Tcl.to.R.Rd
+a6bebcddcb116115c545b9ee4e912043 *man/pickFrom.Rd
+f994aea76a6bae7baf5b1aa6efdf0fab *man/relimp.Rd
+bcd560d8d146dd1cc001e5f456555d4c *man/relrelimp.Rd
+40683a75060fa8c8bb6d702683825fbc *man/showData.Rd

@@ -129,7 +129,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     Sigma <- covmat[indices, indices]
     pi <- X %*% beta
     phi <- H %*% gamma
-    sd.ratio <- sd(pi)/sd(phi)
+    sd.ratio <- sd(as.vector(pi))/sd(as.vector(phi))
     log.ratio <- log(sd.ratio)
     w <- rbind((t(X) %*% pi)/sum(pi * pi), (-t(H) %*% phi)/sum(phi * phi))
     var.log.ratio <- t(w) %*% Sigma %*% w
@@ -228,8 +228,8 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     phi1 <- H %*% gamma1
     pi2 <- X %*% beta2
     phi2 <- H %*% gamma2
-    sd.ratio1 <- sd(pi1)/sd(phi1)
-    sd.ratio2 <- sd(pi2)/sd(phi2)
+    sd.ratio1 <- sd(as.vector(pi1))/sd(as.vector(phi1))
+    sd.ratio2 <- sd(as.vector(pi2))/sd(as.vector(phi2))
     log.ratio1 <- log(sd.ratio1)
     log.ratio2 <- log(sd.ratio2)
     log.ratioratio <- log.ratio1 - log.ratio2
