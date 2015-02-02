@@ -48,7 +48,9 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     label2 = "set2", subset = TRUE, response.cat = NULL, ...)
 {
     if (inherits(object, "multinom")) {
-        require(nnet)
+        if (requireNamespace("nnet", quietly = TRUE)) {}
+        else
+        {stop("the necessary \"nnet\" package is not available")}
     }
     if (inherits(object, "multinom") && is.null(response.cat))
         stop("argument `response.cat' must be specified")
@@ -57,7 +59,7 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
     if (inherits(object, "multinom") && !(response.cat %in%
                                           rownames(coef(object))))
         stop("argument `response.cat' not valid for this model")
-    covmat <- vcov(object, ...)
+    covmat <- vcov(object)
     if (is.null(set1) || is.null(set2)) {
         coefnames <- {
             if (!inherits(object, "multinom"))
@@ -97,10 +99,11 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
         else coef(object)[response.cat, ]
     }
     if (inherits(object, "multinom")) {
-        indices <- t(matrix(1:prod(dim(coef(object))),
-                            nrow = ncol(coef(object)),
-                            ncol = nrow(coef(object)),
-                            dimnames = dimnames(t(coef(object)))))
+        the.coefs <- coef(object)
+        indices <- t(matrix(1:prod(dim(the.coefs)),
+                            nrow = ncol(the.coefs),
+                            ncol = nrow(the.coefs),
+                            dimnames = dimnames(t(the.coefs))))
         indices <- indices[response.cat, ]
         covmat <- covmat[indices, indices]
     }
@@ -153,21 +156,24 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
           label2 = "set2", subset = TRUE,
           response.cat1 = NULL, response.cat2 = NULL)
 {
-    if (!inherits(object, "multinom"))
+    if (!inherits(object, "multinom")) {
         stop("Object is not of class \"multinom\"")
-    require(nnet)
+    }
+    if (requireNamespace("nnet", quietly = TRUE)) {}
+        else {stop("the \"nnet\" package is not available")}
     if (is.null(response.cat1) || is.null(response.cat2))
         stop("arguments `response.cat1' and `response.cat2' must be specified")
     response.cat1 <- as.character(response.cat1) ## numbers get coerced
     response.cat2 <- as.character(response.cat2)
-    if (!(response.cat1 %in% rownames(coef(object))) || !(response.cat2 %in%
-                                                rownames(coef(object))))
+    the.coefs <- coef(object)
+    if (!(response.cat1 %in% rownames(the.coefs)) ||
+        !(response.cat2 %in% rownames(the.coefs)))
         stop("`response.cat' argument(s) not valid for this model")
     if (is.null(set1) || is.null(set2)) {
         coefnames <- {
             if (!inherits(object, "multinom"))
                 names(coef(object))
-            else colnames(coef(object))
+            else colnames(the.coefs)
         }
         sets <- pickFrom(coefnames, nsets = 2, return.indices = TRUE,
                          setlabels = c(label1, label2),
@@ -181,16 +187,16 @@ function (object, set1 = NULL, set2 = NULL, label1 = "set1",
         }
         else stop("\neffects for comparison (set1,set2) not specified")
     }
-    if (max(union(set1, set2)) > length(coef(object))) {
+    if (max(union(set1, set2)) > length(the.coefs)) {
         stop("Index out of bounds")
     }
     ## notation below follows Silber, Rosenbaum and Ross (1995, JASA)
-    coefs <- coef(object)[c(response.cat1, response.cat2), ]
+    coefs <- the.coefs[c(response.cat1, response.cat2), ]
     covmat <- vcov(object)
-    indices <- t(matrix(1:prod(dim(coef(object))),
-                        nrow = ncol(coef(object)),
-                        ncol = nrow(coef(object)),
-                        dimnames = dimnames(t(coef(object)))))
+    indices <- t(matrix(1:prod(dim(the.coefs)),
+                        nrow = ncol(the.coefs),
+                        ncol = nrow(the.coefs),
+                        dimnames = dimnames(t(the.coefs))))
     indices <- as.vector(t(indices[c(response.cat1, response.cat2),
                                    ]))
     covmat <- covmat[indices, indices]

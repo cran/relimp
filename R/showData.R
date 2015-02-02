@@ -47,7 +47,8 @@ function (tcl.list)
         length(rownumbers) != nrow(dataframe)) {
         stop("rownumbers argument must be TRUE, FALSE or have length nrow(dataframe)")
     }
-#    require(tcltk) || stop("Tcl/Tk support is absent")   ## now "Imports:"
+    if (!capabilities("tcltk")) stop("tcltk capability missing")
+    requireNamespace("tcltk", quietly = TRUE)
     oldwidth <- unlist(options("width"))
     options(width = 10000)
     conn <- file()
@@ -68,9 +69,9 @@ function (tcl.list)
             close(messages.connection)
         })
     }
-    base <- tktoplevel()
-    tkwm.geometry(base, placement)
-    tkwm.title(base, {
+    base <- tcltk::tktoplevel()
+    tcltk::tkwm.geometry(base, placement)
+    tcltk::tkwm.title(base, {
         if (is.null(title))
             object.name
         else title
@@ -85,14 +86,14 @@ function (tcl.list)
     yy <- substring(zz, 2 + max(nchar(row.names(dataframe))))
     datawidth <- max(nchar(yy))
     winwidth <- min(1 + datawidth, maxwidth)
-    hdr <- tktext(base,
+    hdr <- tcltk::tktext(base,
                   bg = colname.bgcolor,
                   fg = colname.textcolor,
                   font = font,
                   height = 1,
                   width = winwidth,
                   takefocus = TRUE)
-    ftr <- tktext(base,
+    ftr <- tcltk::tktext(base,
                   bg = colname.bgcolor,
                   fg = colname.textcolor,
                   font = font,
@@ -100,7 +101,7 @@ function (tcl.list)
                   width = winwidth,
                   takefocus = TRUE)
     textheight <- min(maxheight, nrows)
-    txt <- tktext(base,
+    txt <- tcltk::tktext(base,
                   bg = body.bgcolor,
                   fg = body.textcolor,
                   font = font,
@@ -108,219 +109,219 @@ function (tcl.list)
                   width = winwidth,
                   setgrid = 1,
                   takefocus = TRUE)
-     lnames <- tktext(base,
+     lnames <- tcltk::tktext(base,
                      bg = rowname.bgcolor,
                      fg = rowname.textcolor,
                      font = font,
                      height = textheight,
                      width = namewidth,
                      takefocus = TRUE)
-    rnames <- tktext(base,
+    rnames <- tcltk::tktext(base,
                      bg = rowname.bgcolor,
                      fg = rowname.textcolor,
                      font = font,
                      height = textheight,
                      width = namewidth,
                      takefocus = TRUE)
-    xscroll <- tkscrollbar(base,
+    xscroll <- tcltk::tkscrollbar(base,
                            orient = "horizontal",
                            repeatinterval = 1,
                            command = function(...) {
-                               tkxview(txt, ...)
-                               tkxview(hdr, ...)
-                               tkxview(ftr, ...)
+                               tcltk::tkxview(txt, ...)
+                               tcltk::tkxview(hdr, ...)
+                               tcltk::tkxview(ftr, ...)
                            })
     string.to.vector <- function(string.of.indices) {
-        string.of.indices <- tclvalue(string.of.indices)
+        string.of.indices <- tcltk::tclvalue(string.of.indices)
         as.numeric(strsplit(string.of.indices, split = " ")[[1]])
     }
-    tkconfigure(txt, xscrollcommand = function(...) {
-        tkset(xscroll, ...)
-        xy <- string.to.vector(tkget(xscroll))
-        tkxview.moveto(hdr, xy[1])
-        tkxview.moveto(ftr, xy[1])
+    tcltk::tkconfigure(txt, xscrollcommand = function(...) {
+        tcltk::tkset(xscroll, ...)
+        xy <- string.to.vector(tcltk::tkget(xscroll))
+        tcltk::tkxview.moveto(hdr, xy[1])
+        tcltk::tkxview.moveto(ftr, xy[1])
     })
-    tkconfigure(hdr, xscrollcommand = function(...) {
-        tkset(xscroll, ...)
-        xy <- string.to.vector(tkget(xscroll))
-        tkxview.moveto(txt, xy[1])
-        tkxview.moveto(ftr, xy[1])
+    tcltk::tkconfigure(hdr, xscrollcommand = function(...) {
+        tcltk::tkset(xscroll, ...)
+        xy <- string.to.vector(tcltk::tkget(xscroll))
+        tcltk::tkxview.moveto(txt, xy[1])
+        tcltk::tkxview.moveto(ftr, xy[1])
     })
-    tkconfigure(ftr, xscrollcommand = function(...) {
-        tkset(xscroll, ...)
-        xy <- string.to.vector(tkget(xscroll))
-        tkxview.moveto(hdr, xy[1])
-        tkxview.moveto(txt, xy[1])
+    tcltk::tkconfigure(ftr, xscrollcommand = function(...) {
+        tcltk::tkset(xscroll, ...)
+        xy <- string.to.vector(tcltk::tkget(xscroll))
+        tcltk::tkxview.moveto(hdr, xy[1])
+        tcltk::tkxview.moveto(txt, xy[1])
     })
-    yscroll <- tkscrollbar(base,
+    yscroll <- tcltk::tkscrollbar(base,
                            orient = "vertical",
                            repeatinterval = 1,
                            command = function(...) {
-                               tkyview(txt, ...)
-                               tkyview(lnames, ...)
-                               tkyview(rnames, ...)
+                               tcltk::tkyview(txt, ...)
+                               tcltk::tkyview(lnames, ...)
+                               tcltk::tkyview(rnames, ...)
                            })
-    tkconfigure(txt, yscrollcommand = function(...) {
-        tkset(yscroll, ...)
-        xy <- string.to.vector(tkget(yscroll))
-        tkyview.moveto(lnames, xy[1])
-        tkyview.moveto(rnames, xy[1])
+    tcltk::tkconfigure(txt, yscrollcommand = function(...) {
+        tcltk::tkset(yscroll, ...)
+        xy <- string.to.vector(tcltk::tkget(yscroll))
+        tcltk::tkyview.moveto(lnames, xy[1])
+        tcltk::tkyview.moveto(rnames, xy[1])
     })
-    tkconfigure(lnames, yscrollcommand = function(...) {
-        tkset(yscroll, ...)
-        xy <- string.to.vector(tkget(yscroll))
-        tkyview.moveto(txt, xy[1])
-        tkyview.moveto(rnames, xy[1])
+    tcltk::tkconfigure(lnames, yscrollcommand = function(...) {
+        tcltk::tkset(yscroll, ...)
+        xy <- string.to.vector(tcltk::tkget(yscroll))
+        tcltk::tkyview.moveto(txt, xy[1])
+        tcltk::tkyview.moveto(rnames, xy[1])
     })
-    tkconfigure(rnames, yscrollcommand = function(...) {
-        tkset(yscroll, ...)
-        xy <- string.to.vector(tkget(yscroll))
-        tkyview.moveto(txt, xy[1])
-        tkyview.moveto(lnames, xy[1])
+    tcltk::tkconfigure(rnames, yscrollcommand = function(...) {
+        tcltk::tkset(yscroll, ...)
+        xy <- string.to.vector(tcltk::tkget(yscroll))
+        tcltk::tkyview.moveto(txt, xy[1])
+        tcltk::tkyview.moveto(lnames, xy[1])
     })
-    tkbind(txt, "<B2-Motion>", function(x, y) {
-        tkscan.dragto(txt, x, y)
+    tcltk::tkbind(txt, "<B2-Motion>", function(x, y) {
+        tcltk::tkscan.dragto(txt, x, y)
     })
 ## The next block just enables copying from the text boxes
 {
     copyText.hdr <- function(){
-        tcl("event", "generate",
-              .Tk.ID(hdr),
+        tcltk::tcl("event", "generate",
+              tcltk::.Tk.ID(hdr),
               "<<Copy>>")}
-    tkbind(hdr, "<Button-1>", function() tkfocus(hdr))
-    editPopupMenu.hdr <- tkmenu(hdr, tearoff = FALSE)
-    tkadd(editPopupMenu.hdr, "command", label = "Copy <Ctrl-C>",
+    tcltk::tkbind(hdr, "<Button-1>", function() tcltk::tkfocus(hdr))
+    editPopupMenu.hdr <- tcltk::tkmenu(hdr, tearoff = FALSE)
+    tcltk::tkadd(editPopupMenu.hdr, "command", label = "Copy <Ctrl-C>",
               command = copyText.hdr)
     RightClick.hdr <- function(x,y) # x and y are the mouse coordinates
     {
-        rootx <- as.integer(tkwinfo("rootx", hdr))
-        rooty <- as.integer(tkwinfo("rooty", hdr))
+        rootx <- as.integer(tcltk::tkwinfo("rootx", hdr))
+        rooty <- as.integer(tcltk::tkwinfo("rooty", hdr))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tcl("tk_popup", editPopupMenu.hdr, xTxt, yTxt)
+        tcltk::tcl("tk_popup", editPopupMenu.hdr, xTxt, yTxt)
     }
-    tkbind(hdr, "<Button-3>", RightClick.hdr)
-    tkbind(hdr, "<Control-KeyPress-c>", copyText.hdr)
+    tcltk::tkbind(hdr, "<Button-3>", RightClick.hdr)
+    tcltk::tkbind(hdr, "<Control-KeyPress-c>", copyText.hdr)
     ##
     copyText.ftr <- function(){
-        tcl("event", "generate",
-              .Tk.ID(ftr),
+        tcltk::tcl("event", "generate",
+              tcltk::.Tk.ID(ftr),
               "<<Copy>>")}
-    tkbind(ftr, "<Button-1>", function() tkfocus(ftr))
-    editPopupMenu.ftr <- tkmenu(ftr, tearoff = FALSE)
-    tkadd(editPopupMenu.ftr, "command", label = "Copy <Ctrl-C>",
+    tcltk::tkbind(ftr, "<Button-1>", function() tcltk::tkfocus(ftr))
+    editPopupMenu.ftr <- tcltk::tkmenu(ftr, tearoff = FALSE)
+    tcltk::tkadd(editPopupMenu.ftr, "command", label = "Copy <Ctrl-C>",
               command = copyText.ftr)
     RightClick.ftr <- function(x,y) # x and y are the mouse coordinates
     {
-        rootx <- as.integer(tkwinfo("rootx", ftr))
-        rooty <- as.integer(tkwinfo("rooty", ftr))
+        rootx <- as.integer(tcltk::tkwinfo("rootx", ftr))
+        rooty <- as.integer(tcltk::tkwinfo("rooty", ftr))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tcl("tk_popup", editPopupMenu.ftr, xTxt, yTxt)
+        tcltk::tcl("tk_popup", editPopupMenu.ftr, xTxt, yTxt)
     }
-    tkbind(ftr, "<Button-3>", RightClick.ftr)
-    tkbind(ftr, "<Control-KeyPress-c>", copyText.ftr)
+    tcltk::tkbind(ftr, "<Button-3>", RightClick.ftr)
+    tcltk::tkbind(ftr, "<Control-KeyPress-c>", copyText.ftr)
     ##
     copyText.txt <- function(){
-        tcl("event", "generate",
-              .Tk.ID(txt),
+        tcltk::tcl("event", "generate",
+              tcltk::.Tk.ID(txt),
               "<<Copy>>")}
-    tkbind(txt, "<Button-1>", function() tkfocus(txt))
-    editPopupMenu.txt <- tkmenu(txt, tearoff = FALSE)
-    tkadd(editPopupMenu.txt, "command", label = "Copy <Ctrl-C>",
+    tcltk::tkbind(txt, "<Button-1>", function() tcltk::tkfocus(txt))
+    editPopupMenu.txt <- tcltk::tkmenu(txt, tearoff = FALSE)
+    tcltk::tkadd(editPopupMenu.txt, "command", label = "Copy <Ctrl-C>",
               command = copyText.txt)
     RightClick.txt <- function(x,y) # x and y are the mouse coordinates
     {
-        rootx <- as.integer(tkwinfo("rootx", txt))
-        rooty <- as.integer(tkwinfo("rooty", txt))
+        rootx <- as.integer(tcltk::tkwinfo("rootx", txt))
+        rooty <- as.integer(tcltk::tkwinfo("rooty", txt))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tcl("tk_popup", editPopupMenu.txt, xTxt, yTxt)
+        tcltk::tcl("tk_popup", editPopupMenu.txt, xTxt, yTxt)
     }
-    tkbind(txt, "<Button-3>", RightClick.txt)
-    tkbind(txt, "<Control-KeyPress-c>", copyText.txt)
+    tcltk::tkbind(txt, "<Button-3>", RightClick.txt)
+    tcltk::tkbind(txt, "<Control-KeyPress-c>", copyText.txt)
     ##
     copyText.lnames <- function(){
-        tcl("event", "generate",
-              .Tk.ID(lnames),
+        tcltk::tcl("event", "generate",
+              tcltk::.Tk.ID(lnames),
               "<<Copy>>")}
-    tkbind(lnames, "<Button-1>", function() tkfocus(lnames))
-    editPopupMenu.lnames <- tkmenu(lnames, tearoff = FALSE)
-    tkadd(editPopupMenu.lnames, "command", label = "Copy <Ctrl-C>",
+    tcltk::tkbind(lnames, "<Button-1>", function() tcltk::tkfocus(lnames))
+    editPopupMenu.lnames <- tcltk::tkmenu(lnames, tearoff = FALSE)
+    tcltk::tkadd(editPopupMenu.lnames, "command", label = "Copy <Ctrl-C>",
               command = copyText.lnames)
     RightClick.lnames <- function(x,y) # x and y are the mouse coordinates
     {
-        rootx <- as.integer(tkwinfo("rootx", lnames))
-        rooty <- as.integer(tkwinfo("rooty", lnames))
+        rootx <- as.integer(tcltk::tkwinfo("rootx", lnames))
+        rooty <- as.integer(tcltk::tkwinfo("rooty", lnames))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tcl("tk_popup", editPopupMenu.lnames, xTxt, yTxt)
+        tcltk::tcl("tk_popup", editPopupMenu.lnames, xTxt, yTxt)
     }
-    tkbind(lnames, "<Button-3>", RightClick.lnames)
-    tkbind(lnames, "<Control-KeyPress-c>", copyText.lnames)
+    tcltk::tkbind(lnames, "<Button-3>", RightClick.lnames)
+    tcltk::tkbind(lnames, "<Control-KeyPress-c>", copyText.lnames)
     ##
         copyText.rnames <- function(){
-        tcl("event", "generate",
-              .Tk.ID(rnames),
+        tcltk::tcl("event", "generate",
+              tcltk::.Tk.ID(rnames),
               "<<Copy>>")}
-    tkbind(rnames, "<Button-1>", function() tkfocus(rnames))
-    editPopupMenu.rnames <- tkmenu(rnames, tearoff = FALSE)
-    tkadd(editPopupMenu.rnames, "command", label = "Copy <Ctrl-C>",
+    tcltk::tkbind(rnames, "<Button-1>", function() tcltk::tkfocus(rnames))
+    editPopupMenu.rnames <- tcltk::tkmenu(rnames, tearoff = FALSE)
+    tcltk::tkadd(editPopupMenu.rnames, "command", label = "Copy <Ctrl-C>",
               command = copyText.rnames)
     RightClick.rnames <- function(x,y) # x and y are the mouse coordinates
     {
-        rootx <- as.integer(tkwinfo("rootx", rnames))
-        rooty <- as.integer(tkwinfo("rooty", rnames))
+        rootx <- as.integer(tcltk::tkwinfo("rootx", rnames))
+        rooty <- as.integer(tcltk::tkwinfo("rooty", rnames))
         xTxt <- as.integer(x) + rootx
         yTxt <- as.integer(y) + rooty
-        tcl("tk_popup", editPopupMenu.rnames, xTxt, yTxt)
+        tcltk::tcl("tk_popup", editPopupMenu.rnames, xTxt, yTxt)
     }
-    tkbind(rnames, "<Button-3>", RightClick.rnames)
-    tkbind(rnames, "<Control-KeyPress-c>", copyText.rnames)
+    tcltk::tkbind(rnames, "<Button-3>", RightClick.rnames)
+    tcltk::tkbind(rnames, "<Control-KeyPress-c>", copyText.rnames)
 }
 
-    tktag.configure(hdr, "notwrapped", wrap = "none")
-    tktag.configure(ftr, "notwrapped", wrap = "none")
-    tktag.configure(txt, "notwrapped", wrap = "none")
-    tktag.configure(lnames, "notwrapped", wrap = "none")
-    tktag.configure(rnames, "notwrapped", wrap = "none")
-    tkinsert(txt, "end", paste(paste(yy[-1], collapse = "\n"),
+    tcltk::tktag.configure(hdr, "notwrapped", wrap = "none")
+    tcltk::tktag.configure(ftr, "notwrapped", wrap = "none")
+    tcltk::tktag.configure(txt, "notwrapped", wrap = "none")
+    tcltk::tktag.configure(lnames, "notwrapped", wrap = "none")
+    tcltk::tktag.configure(rnames, "notwrapped", wrap = "none")
+    tcltk::tkinsert(txt, "end", paste(paste(yy[-1], collapse = "\n"),
                                sep = ""), "notwrapped")
-    tkgrid(txt, row = 1, column = 1, sticky = "nsew")
+    tcltk::tkgrid(txt, row = 1, column = 1, sticky = "nsew")
     if ("top" %in% colname.bar) {
-        tkinsert(hdr, "end", paste(yy[1], sep = ""), "notwrapped")
-        tkgrid(hdr, row = 0, column = 1, sticky = "ew")
+        tcltk::tkinsert(hdr, "end", paste(yy[1], sep = ""), "notwrapped")
+        tcltk::tkgrid(hdr, row = 0, column = 1, sticky = "ew")
     }
     if ("bottom" %in% colname.bar) {
-        tkinsert(ftr, "end", paste(yy[1], sep = ""), "notwrapped")
-        tkgrid(ftr, row = 2, column = 1, sticky = "ew")
+        tcltk::tkinsert(ftr, "end", paste(yy[1], sep = ""), "notwrapped")
+        tcltk::tkgrid(ftr, row = 2, column = 1, sticky = "ew")
     }
     if ("left" %in% rowname.bar) {
-        tkinsert(lnames, "end",
+        tcltk::tkinsert(lnames, "end",
                  paste(rowname.text, collapse = "\n"),
                  "notwrapped")
-        tkgrid(lnames, row = 1, column = 0, sticky = "ns")
+        tcltk::tkgrid(lnames, row = 1, column = 0, sticky = "ns")
     }
     if ("right" %in% rowname.bar) {
-        tkinsert(rnames, "end",
+        tcltk::tkinsert(rnames, "end",
                  paste(rowname.text, collapse = "\n"),
                  "notwrapped")
-        tkgrid(rnames, row = 1, column = 2, sticky = "ns")
+        tcltk::tkgrid(rnames, row = 1, column = 2, sticky = "ns")
     }
 #    tkconfigure(hdr, state = "disabled")
 #    tkconfigure(ftr, state = "disabled")
-    tkconfigure(txt, state = "disabled")
-    tkconfigure(lnames, state = "disabled")
-    tkconfigure(rnames, state = "disabled")
+    tcltk::tkconfigure(txt, state = "disabled")
+    tcltk::tkconfigure(lnames, state = "disabled")
+    tcltk::tkconfigure(rnames, state = "disabled")
     if (maxheight < nrows) {
-        tkgrid(yscroll, row = 1, column = 3, sticky = "ns")
+        tcltk::tkgrid(yscroll, row = 1, column = 3, sticky = "ns")
     }
     if (maxwidth < datawidth) {
-        tkgrid(xscroll, row = 3, column = 1, sticky = "ew")
+        tcltk::tkgrid(xscroll, row = 3, column = 1, sticky = "ew")
     }
-    tkgrid.rowconfigure(base, 1, weight = 1)
-    tkgrid.columnconfigure(base, 1, weight = 1)
-    tkwm.maxsize(base, 1 + datawidth, nrows)
-    tkwm.minsize(base, 1 + nchar(names(dataframe)[1]), 1)
+    tcltk::tkgrid.rowconfigure(base, 1, weight = 1)
+    tcltk::tkgrid.columnconfigure(base, 1, weight = 1)
+    tcltk::tkwm.maxsize(base, 1 + datawidth, nrows)
+    tcltk::tkwm.minsize(base, 1 + nchar(names(dataframe)[1]), 1)
 invisible(NULL)
 }

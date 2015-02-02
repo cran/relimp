@@ -91,11 +91,12 @@ relimp(object, set1=NULL,  set2=NULL, label1="set1", label2="set2",
 \seealso{\code{\link{relrelimp}}}
 
 \examples{
+set.seed(182)  ## an arbitrary number, just for reproducibility
 x <- rnorm(100)
 z <- rnorm(100)
 w <- rnorm(100)
-y <- 3+ 2*x + z + w + rnorm(100)
-test <- lm(y ~ x +z +w)
+y <- 3 + (2 * x) + z + w + rnorm(100)
+test <- lm(y ~ x + z + w)
 print(test)
 relimp(test, 2, 3)    #  compares effects of x and z
 relimp(test, 2, 3:4)  #  compares effect of x with that of (z,w) combined
