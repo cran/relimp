@@ -50,7 +50,7 @@ showData(dataframe,
     warnings are suppressed}
 }
 \value{
-  \code{invisible(NULL)}
+  Invisibly returns the Tk window containing the displayed data frame.
 }
 \note{An error results if the printed representation of \code{dataframe}
   exceeds the maximum allowed width of 10000 characters; see
@@ -62,7 +62,7 @@ showData(dataframe,
   On some systems the window may take a few seconds to appear if the
   data frame is very large.
 }
-\author{David Firth, \email{d.firth@warwick.ac.uk}}
+\author{David Firth, \email{d.firth@warwick.ac.uk}; with Rcmdr-specific features contributed by John Fox}
 \examples{
 ## This cannot be run by example() but should be OK when pasted
 ## into an interactive R session
